@@ -3,12 +3,9 @@
  * Run: npm run db:seed
  */
 import path from "path";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@prisma/client";
 
-const dbPath = path.resolve(process.cwd(), "prisma/dev.db");
-const adapter = new PrismaBetterSqlite3({ url: dbPath });
-const prisma = new PrismaClient({ adapter } as any);
+const prisma = new PrismaClient();
 
 /**
  * Strip any fields from story that are not in the Prisma schema.
