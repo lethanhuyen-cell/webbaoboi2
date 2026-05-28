@@ -60,46 +60,117 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col gap-10 sm:gap-16 pb-12 sm:pb-20">
+    <div className="flex flex-col gap-6 sm:gap-14 pb-10 sm:pb-20">
       
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/50 via-amber-50/30 to-transparent py-8 sm:py-24">
+      {/* ====== HERO SECTION - Above The Fold Control Panel ====== */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/60 via-amber-50/20 to-transparent pt-5 pb-6 sm:py-20 border-b border-orange-100/50">
+        {/* subtle bg glow */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-orange-200/20 rounded-full blur-[80px] pointer-events-none" />
+
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-center">
             
-            {/* Left content */}
-            <div className="flex flex-col gap-6 text-center lg:text-left">
-              <div className="inline-flex items-center self-center lg:self-start gap-1.5 rounded-full bg-orange-100 px-3 py-1.5 text-xs font-semibold text-orange-800">
+            {/* ─── LEFT: All-in-one info column ─── */}
+            <div className="flex flex-col gap-3.5 sm:gap-5 text-center lg:text-left">
+
+              {/* Badge */}
+              <div className="inline-flex items-center self-center lg:self-start gap-1.5 rounded-full bg-orange-100 px-3 py-1 text-[10px] font-semibold text-orange-800">
                 <Sparkles className="h-3 w-3 text-orange-600 animate-pulse" />
-                Dự án Bảo Bối Story Hub V2
+                Bảo Bối Story Hub · Dự án V2
               </div>
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-900 leading-tight">
-                Học và lớn lên qua từng <span className="text-orange-500 underline decoration-wavy decoration-orange-300">trang truyện</span> sinh động
+
+              {/* H1 — shorter for mobile */}
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-zinc-900 leading-tight">
+                Truyện thiếu nhi{" "}
+                <span className="text-orange-500 underline decoration-wavy decoration-orange-300">
+                  audio &amp; minh hoạ
+                </span>{" "}
+                cho bé 3–15 tuổi
               </h1>
-              <p className="text-base sm:text-lg text-zinc-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Truyện minh họa sắc nét tích hợp audio truyền cảm, được phân loại tối ưu cho từng độ tuổi giúp trẻ đọc, nghe, hiểu mình và thấu hiểu thế giới xung quanh.
+
+              {/* Short desc — 1 line on mobile */}
+              <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed max-w-lg mx-auto lg:mx-0">
+                Đọc, nghe và khám phá hàng chục câu chuyện giáo dục đa ngôn ngữ — được kiểm duyệt kỹ lưỡng, an toàn tuyệt đối cho trẻ.
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-4">
+
+              {/* Metrics Bar */}
+              <div className="py-2 px-3 rounded-xl bg-white/70 border border-orange-100 backdrop-blur-md inline-flex flex-wrap gap-x-3 sm:gap-x-5 gap-y-1.5 justify-center lg:justify-start items-center text-[10px] font-bold text-zinc-700 shadow-sm">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                  <span>12+ Truyện tương tác</span>
+                </div>
+                <span className="text-zinc-200">|</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                  <span>Audio đa ngôn ngữ</span>
+                </div>
+                <span className="text-zinc-200">|</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Độ tuổi 3–15</span>
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-2.5 justify-center lg:justify-start">
                 <Link
                   href="/library"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-orange-500 px-6 font-medium text-white shadow-md hover:bg-orange-600 transition-all hover:shadow-lg"
+                  className="inline-flex h-10 sm:h-12 items-center justify-center rounded-xl bg-orange-500 px-5 sm:px-6 font-bold text-white shadow-md hover:bg-orange-600 transition-all hover:shadow-lg text-xs sm:text-sm group"
                 >
-                  Khám phá thư viện
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <BookOpen className="mr-1.5 h-4 w-4" />
+                  Vào Thư viện
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
-                  href="/admin"
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
+                  href="/library?format=listen"
+                  className="inline-flex h-10 sm:h-12 items-center justify-center rounded-xl border border-orange-200 bg-orange-50/60 px-5 sm:px-6 font-bold text-orange-700 hover:bg-orange-100 transition-colors text-xs sm:text-sm gap-1.5"
                 >
-                  Hệ thống Quản trị CMS
+                  <Volume2 className="h-4 w-4" />
+                  Nghe Audio
                 </Link>
+              </div>
+
+              {/* ── Quick Navigation Section ── */}
+              <div className="pt-3 border-t border-orange-100/70">
+                <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 flex items-center justify-center lg:justify-start gap-1.5">
+                  <Flame className="h-2.5 w-2.5 text-orange-400 animate-pulse" />
+                  Truy cập nhanh
+                </p>
+
+                {/* Age group chips */}
+                <div className="flex flex-wrap gap-1.5 justify-center lg:justify-start mb-2">
+                  <Link href="/library?age=3-8" className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full hover:bg-emerald-100 transition-all">
+                    🌱 3–8 tuổi
+                  </Link>
+                  <Link href="/library?age=9-12" className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-full hover:bg-orange-100 transition-all">
+                    🚀 9–12 tuổi
+                  </Link>
+                  <Link href="/library?age=12-15" className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-full hover:bg-purple-100 transition-all">
+                    ✨ 12–15 tuổi
+                  </Link>
+                  <Link href="/library?topic=Bedtime" className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full hover:bg-indigo-100 transition-all">
+                    🌙 Ngủ ngon
+                  </Link>
+                </div>
+
+                {/* Topic chips */}
+                <div className="flex flex-wrap gap-1.5 justify-center lg:justify-start">
+                  {topics.map(t => (
+                    <Link
+                      key={t.name}
+                      href={`/library?topic=${t.name}`}
+                      className="px-2.5 py-1 text-[10px] font-semibold text-zinc-600 bg-white/50 border border-zinc-200 rounded-full hover:bg-orange-50 hover:border-orange-300 hover:text-orange-600 shadow-sm transition-all"
+                    >
+                      {t.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Right content (Featured Story Preview Card) */}
-            <div className="relative group">
-              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-orange-400 to-amber-400 opacity-20 blur-xl transition-all group-hover:opacity-30"></div>
+            {/* ─── RIGHT: Featured story card — hidden on mobile, shown on lg ─── */}
+            <div className="relative group hidden lg:block">
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-orange-400 to-amber-400 opacity-20 blur-xl transition-all group-hover:opacity-30" />
               {featuredStory && (
                 <div className="relative flex flex-col overflow-hidden rounded-2xl border border-orange-100 bg-white p-4 shadow-xl transition-all hover:translate-y-[-4px]">
                   <div className="relative h-64 w-full overflow-hidden rounded-xl">
@@ -115,7 +186,6 @@ export default function Home() {
                       <Clock className="h-3 w-3" /> {featuredStory.readDuration} phút đọc
                     </div>
                   </div>
-                  
                   <div className="mt-4 flex flex-col gap-2">
                     <div className="flex items-center justify-between text-xs text-orange-600 font-medium">
                       <span>Độ tuổi: {featuredStory.ageGroup} tuổi</span>
@@ -127,27 +197,41 @@ export default function Home() {
                     <p className="text-sm text-zinc-500 line-clamp-2">
                       {featuredStory.description}
                     </p>
-                    <div className="mt-4 flex items-center justify-between border-t border-zinc-50 pt-4">
+                    <div className="mt-3 flex items-center justify-between border-t border-zinc-50 pt-3">
                       <div className="flex gap-2">
-                        <span className="rounded bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">
-                          {featuredStory.mainEmotion}
-                        </span>
-                        <span className="rounded bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700">
-                          {featuredStory.skill}
-                        </span>
+                        <span className="rounded bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">{featuredStory.mainEmotion}</span>
+                        <span className="rounded bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700">{featuredStory.skill}</span>
                       </div>
-                      <Link 
-                        href={`/story/${featuredStory.id}`} 
-                        className="text-sm font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-0.5"
-                      >
-                        Đọc ngay
-                        <ArrowRight className="h-3 w-3" />
+                      <Link href={`/story/${featuredStory.id}`} className="text-sm font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-0.5">
+                        Đọc ngay <ArrowRight className="h-3 w-3" />
                       </Link>
                     </div>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* ─── RIGHT (mobile only): Compact story strip ─── */}
+            {featuredStory && (
+              <Link
+                href={`/story/${featuredStory.id}`}
+                className="lg:hidden flex items-center gap-3 rounded-2xl border border-orange-100 bg-white/80 p-3 shadow-sm hover:shadow-md transition-all group"
+              >
+                <img
+                  src={featuredStory.squareImage || featuredStory.thumbnailHorizontal}
+                  alt={featuredStory.title}
+                  className="h-16 w-16 rounded-xl object-cover shrink-0 shadow-sm"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[9px] font-bold text-orange-500 uppercase tracking-wider mb-0.5">⭐ Nổi bật hôm nay</div>
+                  <div className="font-bold text-sm text-zinc-900 line-clamp-1 group-hover:text-orange-600 transition-colors">{featuredStory.title}</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5 flex items-center gap-1.5">
+                    <Clock className="h-2.5 w-2.5" /> {featuredStory.readDuration} phút · {featuredStory.ageGroup} tuổi
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-orange-400 shrink-0" />
+              </Link>
+            )}
 
           </div>
         </div>
