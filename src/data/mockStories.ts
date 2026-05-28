@@ -2359,5 +2359,219 @@ export const INITIAL_STORIES: Story[] = [
         warningRequired: false
       }
     }
+  },
+  {
+    id: "story-mermaid",
+    title: "Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm",
+    titleEn: "The Little Mermaid and The Bridge of Empathy",
+    seriesName: "Cổ tích biển xanh",
+    ageGroup: "3-8",
+    topic: "Thấu cảm",
+    mainEmotion: "Yêu thương",
+    skill: "Thấu cảm & Sẻ chia",
+    description: "Câu chuyện về nàng tiên cá Ariel dùng tiếng hát ấm áp xoa dịu nỗi sợ và giúp đỡ cậu bé trên bờ.",
+    descriptionEn: "A story about the little mermaid Ariel using her warm voice to soothe a boy's fear on the shore.",
+    longDescription: "Dưới lòng đại dương bao la, nàng tiên cá Ariel luôn tò mò về thế giới trên mặt nước. Một hôm, Ariel bơi đến gần bờ cát và nghe thấy tiếng khóc của một cậu bé đi lạc. Bằng sự thấu cảm và lòng nhân ái, cô đã hát một khúc ca êm dịu xoa dịu nỗi sợ hãi của cậu bé, giúp cậu có thêm dũng cảm tìm đường về nhà. Câu chuyện dạy trẻ bài học quý giá về việc cảm nhận cảm xúc của người khác và sẻ chia yêu thương không biên giới.",
+    storyText: "Trang 1: Bức tranh đại dương bao la và Ariel đang nhìn lên mặt nước đầy ánh nắng lấp lánh.\nTrang 2: Nàng tiên cá nhỏ Ariel sống dưới đại dương xanh thẳm, nhưng tâm hồn cô luôn hướng về thế giới tràn đầy ánh sáng trên mặt đất.\nTrang 3: Bức tranh Ariel bơi đến gần một rạn đá ven bờ cát vàng.\nTrang 4: Một buổi chiều, Ariel bơi đến gần bờ biển và nghe thấy tiếng khóc thút thít. Một cậu bé đang ngồi cô đơn trên cát vì bị lạc đường.\nTrang 5: Bức tranh Ariel nhô lên mặt nước, hát vang khúc ca biển cả lấp lánh nốt nhạc dịu kỳ.\nTrang 6: Ariel hiểu rằng cậu bé đang rất sợ hãi. Cô cất tiếng hát êm dịu của biển cả. Giọng hát ngọt ngào như lời ru của mẹ giúp cậu bé vơi đi nỗi sợ.\nTrang 7: Bức tranh cậu bé mỉm cười vẫy tay chào Ariel khi tìm thấy gia đình.\nTrang 8: Có thêm dũng cảm nhờ khúc ca, cậu bé bước đi và tìm thấy bố mẹ. Ariel mỉm cười hạnh phúc, cô nhận ra thấu cảm chính là chiếc cầu nối ấm áp nhất.",
+    wordCount: 180,
+    pageCount: 8,
+    readDuration: 4,
+    audioDuration: 4,
+    language: "vi",
+    author: "Bảo Bối Biên Tập",
+    illustrator: "Nguyễn Mỹ Thuật",
+    voiceNarrator: "Chị Hướng Dương",
+    copyrightStatus: "approved",
+    seoTitle: "Đọc truyện Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm | Bảo Bối Story Hub",
+    seoDescription: "Truyện cổ tích nàng tiên cá phiên bản giáo dục thấu cảm cho bé 3-8 tuổi. Có audio kể chuyện truyền cảm và tranh minh họa tuyệt đẹp.",
+    keywords: ["nàng tiên cá", "thấu cảm", "truyện cổ tích", "audio thiếu nhi", "truyện ngủ ngon"],
+    thumbnailHorizontal: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=800&auto=format&fit=crop",
+    thumbnailVertical: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=500&auto=format&fit=crop",
+    squareImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=400&auto=format&fit=crop",
+    audioFile: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    reviewStatus: "published",
+    safetyChecklist: {
+      noHarmfulContent: true,
+      noDirectAdvertising: true,
+      noOpenChat: true,
+      noUnmoderatedComments: true,
+      noExcessiveDataCollection: true,
+      noRealChildImages: true,
+      noAIWithoutHumanReview: true,
+      ageAppropriateVocab: true,
+      positiveEmotionalFraming: true,
+      parentDiscussionQuestions: true,
+      copyrightChecked: true,
+      finalHumanApproval: true
+    },
+    parentGuide: {
+      educationalValue: "Giúp trẻ học cách nhận diện khi người khác buồn bã, sợ hãi và biết cách chia sẻ, xoa dịu bằng những hành động nhỏ ấm áp của mình.",
+      discussionQuestions: [
+        "Tại sao Ariel lại muốn giúp đỡ cậu bé trên bờ cát?",
+        "Tiếng hát của Ariel đã giúp cậu bé cảm thấy như thế nào?",
+        "Khi thấy một người bạn đang khóc hoặc lo lắng, con sẽ làm gì để giúp bạn vui lên?"
+      ]
+    },
+    pages: [
+      {
+        pageNumber: 1,
+        text: "",
+        illustrationUrl: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=800&auto=format&fit=crop"
+      },
+      {
+        pageNumber: 2,
+        text: "Dưới lòng đại dương bao la và xanh thẳm, nơi có những rạn san hô lấp lánh đủ sắc màu, nàng tiên cá nhỏ Ariel sống hạnh phúc cùng gia đình. Thế nhưng, cô luôn ngước nhìn lên mặt nước lấp lánh ánh nắng và mơ về những chuyến phiêu lưu kỳ thú trên thế giới loài người.",
+        illustrationUrl: ""
+      },
+      {
+        pageNumber: 3,
+        text: "",
+        illustrationUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop"
+      },
+      {
+        pageNumber: 4,
+        text: "Vào một buổi chiều hoàng hôn nhuộm hồng cả mặt biển, Ariel bơi đến gần một bờ cát vàng hoang sơ. Bất chợt, cô nghe thấy tiếng khóc nấc khe khẽ. Nấp sau rạn đá, Ariel nhìn thấy một cậu bé đang ngồi bó gối cô đơn, đôi mắt ngập tràn lo âu vì bị lạc mất gia đình.",
+        illustrationUrl: ""
+      },
+      {
+        pageNumber: 5,
+        text: "",
+        illustrationUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop"
+      },
+      {
+        pageNumber: 6,
+        text: "Trái tim nhỏ bé của Ariel nhói lên khi cảm nhận được nỗi sợ hãi tột cùng của cậu bé. Không ngần ngại, cô nhô lên mặt nước, giữ một khoảng cách an toàn rồi cất tiếng hát. Giọng ca trong trẻo, ngọt ngào của Ariel vang lên như lời ru êm dịu xoa dịu mọi cơn bão giông.",
+        illustrationUrl: ""
+      },
+      {
+        pageNumber: 7,
+        text: "",
+        illustrationUrl: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=800&auto=format&fit=crop"
+      },
+      {
+        pageNumber: 8,
+        text: "Khúc ca biển cả ấm áp truyền cho cậu bé dũng cảm phi thường. Cậu nín khóc, đứng dậy đi dọc bờ biển và nhanh chóng đoàn tụ với bố mẹ đang lo lắng tìm kiếm. Nhìn cậu bé mỉm cười vẫy tay chào đại dương, Ariel nhận ra thấu cảm chính là chiếc cầu nối kỳ diệu nhất gắn kết muôn loài.",
+        illustrationUrl: ""
+      }
+    ],
+    socialOutputs: {
+      website: {
+        title: "Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm",
+        caption: "Khám phá câu chuyện giáo dục ấm lòng đầy tính nhân văn.",
+        hashtags: "#cổtích #thấucảm #bảobối",
+        format: "Web Story",
+        aspectRatio: "16:9",
+        duration: "4 phút",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "published",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      youtubeLong: {
+        title: "Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm | Truyện Kể Cho Bé Ngủ Ngon",
+        caption: "Bản đầy đủ chất lượng cao giúp nuôi dưỡng trí tuệ cảm xúc cho trẻ.",
+        hashtags: "#cổtíchnàngtiêncá #ngủngonbaoboi",
+        format: "Video ngang",
+        aspectRatio: "16:9",
+        duration: "4:00",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      youtubeShorts: {
+        title: "Bài học thấu cảm từ Nàng Tiên Cá 🧜‍♀️",
+        caption: "Bài học sẻ chia ấm áp giúp bé phát triển toàn diện cảm xúc.",
+        hashtags: "#shorts #dạyconnhânái",
+        format: "Video đứng",
+        aspectRatio: "9:16",
+        duration: "0:50",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      tiktok: {
+        title: "Ariel và bài học thấu cảm ngọt ngào 🌊 #learnontiktok",
+        caption: "Sự thấu cảm là ngôn ngữ chung của thế giới! Cùng khám phá câu chuyện.",
+        hashtags: "#giaoducsom #baoboi #storyhub",
+        format: "Video đứng",
+        aspectRatio: "9:16",
+        duration: "0:50",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      facebook: {
+        title: "Câu chuyện tuần này: Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm",
+        caption: "Dạy bé biết quan sát và thấu hiểu cảm xúc của người khác thông qua hình tượng nàng tiên cá thân thuộc...",
+        hashtags: "#bảobốistory #nuôidạytâmhồn",
+        format: "Bài viết kèm ảnh",
+        aspectRatio: "1:1",
+        duration: "4 phút",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      instagramCarousel: {
+        title: "Chiếc cầu nối mang tên Thấu Cảm 💕",
+        caption: "Trượt để cùng Ariel cảm nhận và sẻ chia lòng nhân ái nhé ba mẹ ơi!",
+        hashtags: "#eqforkids #littlemermaid #empathy #baoboi",
+        format: "Carousel 4 slides",
+        aspectRatio: "1:1",
+        duration: "N/A",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      zaloOA: {
+        title: "Truyện kể rèn luyện EQ: Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm",
+        caption: "Món quà tinh thần nuôi dưỡng lòng trắc ẩn cho bé yêu vào tối nay.",
+        hashtags: "#zalo #baoboi #nuoiconEQ",
+        format: "Bài viết",
+        aspectRatio: "16:9",
+        duration: "4 phút",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      podcast: {
+        title: "Tập 13: Nàng Tiên Cá Và Nhịp Cầu Thấu Cảm | Giọng Đọc Chị Hướng Dương",
+        caption: "Giọng kể truyền cảm đưa con trẻ vào thế giới thấu cảm kỳ diệu dưới đáy biển xanh.",
+        hashtags: "#podcastthieunhi #chuyengkhekhuya #eqbaoboi",
+        format: "Audio MP3",
+        aspectRatio: "N/A",
+        duration: "4:00",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      },
+      newsletter: {
+        title: "[Hành Trình Nuôi Dưỡng EQ] Khi con trẻ học được sự thấu cảm",
+        caption: "Làm thế nào để hướng con biết quan tâm và thấu hiểu cảm xúc xung quanh? Câu chuyện Ariel tuần này...",
+        hashtags: "#newsletter #dayconEQ #baoboi",
+        format: "Email",
+        aspectRatio: "N/A",
+        duration: "4 phút",
+        thumbnail: "https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=500&auto=format&fit=crop",
+        publishStatus: "draft",
+        scheduledDate: "",
+        mode: "manual",
+        warningRequired: false
+      }
+    }
   }
 ];

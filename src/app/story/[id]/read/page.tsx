@@ -34,6 +34,7 @@ function StoryReadContent() {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [bedtimeMode, setBedtimeMode] = useState(false);
   const [audioOnlyMode, setAudioOnlyMode] = useState(false);
+  const [scrollMode, setScrollMode] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
   const [highlightWordIndex, setHighlightWordIndex] = useState(-1);
@@ -47,6 +48,9 @@ function StoryReadContent() {
     const currentStory = getStoryById(id);
     if (currentStory) {
       setStory(currentStory);
+      if (currentStory.id === "story-mermaid") {
+        setScrollMode(true);
+      }
     }
     setMounted(true);
 
@@ -55,6 +59,9 @@ function StoryReadContent() {
       const updatedStory = getStoryById(id);
       if (updatedStory) {
         setStory(updatedStory);
+        if (updatedStory.id === "story-mermaid") {
+          setScrollMode(true);
+        }
       }
     });
   }, [id]);
@@ -129,6 +136,19 @@ function StoryReadContent() {
     }
   };
 
+  // Must be BEFORE early returns — Rules of Hooks
+  const isLastPageForEffect = story ? currentPageIndex === story.pages.length : false;
+  useEffect(() => {
+    if (isLastPageForEffect) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#f97316', '#fbbf24', '#34d399', '#60a5fa']
+      });
+    }
+  }, [isLastPageForEffect]);
+
   if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -150,18 +170,6 @@ function StoryReadContent() {
 
   const isLastPage = currentPageIndex === story.pages.length;
   const currentPage: StoryPage | undefined = story.pages[currentPageIndex];
-
-  // Trigger celebration when reaching the end
-  useEffect(() => {
-    if (isLastPage) {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#f97316', '#fbbf24', '#34d399', '#60a5fa']
-      });
-    }
-  }, [isLastPage]);
 
   // Helper to split text and render with highlighting
   const renderHighlightedText = (text: string) => {
@@ -224,12 +232,26 @@ function StoryReadContent() {
           {/* Viewing Modes Controls */}
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setScrollMode(!scrollMode)}
+              className={`rounded-full px-3 py-1.5 transition-all text-[11px] font-bold ${
+                scrollMode 
+                  ? bedtimeMode 
+                    ? "bg-slate-800 text-white" 
+                    : "bg-[#1d1d1f] text-white" 
+                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+              }`}
+              title={scrollMode ? "Đổi sang xem Lật Trang" : "Đổi sang xem Cuộn Dọc"}
+            >
+              {scrollMode ? "Chế độ cuộn ↕" : "Chế độ lật ↔"}
+            </button>
+            <div className="w-px h-5 bg-zinc-200 mx-1"></div>
+            <button
               onClick={() => {
                 setAudioOnlyMode(!audioOnlyMode);
                 if (!audioOnlyMode) setBedtimeMode(true); // Default to bedtime when audio-only
               }}
               className={`rounded-full p-2 transition-all flex items-center gap-1.5 ${
-                audioOnlyMode ? "bg-purple-100 text-purple-700" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                audioOnlyMode ? "bg-purple-100 text-purple-700" : "bg-zinc-100 text-zinc-650 hover:bg-zinc-200"
               }`}
               title={audioOnlyMode ? "Tắt chế độ chỉ nghe" : "Bật chế độ chỉ nghe (All Ears)"}
             >
@@ -251,54 +273,18 @@ function StoryReadContent() {
       </div>
 
       {/* Main Content Area */}
-      <div className="mx-auto max-w-4xl px-4 py-4 sm:py-8 sm:px-6 flex-1 flex flex-col justify-center">
+      <div className={`mx-auto max-w-4xl px-4 sm:px-6 flex-1 flex flex-col ${scrollMode ? "py-4" : "py-4 sm:py-8 justify-center"}`}>
         
-        {!isLastPage && currentPage ? (
-          /* Normal Page View */
-          <div className="flex flex-col gap-4 sm:gap-8">
-            {/* Illustration (Hidden in Audio-Only Mode) */}
-            {!audioOnlyMode && (
-              <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-all duration-500 ${
-                bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
-              }`}>
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950 group">
-                  <img
-                    src={currentPage.illustrationUrl}
-                    alt={`Trang ${currentPage.pageNumber}`}
-                    className={`h-full w-full object-cover transition-all duration-700 ${
-                      bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
-                    }`}
-                  />
-                  
-                   {/* Tap to Turn Zones */}
-                  <div 
-                    onClick={() => handlePageChange(currentPageIndex - 1)}
-                    className="absolute top-0 left-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-start bg-gradient-to-r from-black/15 to-transparent transition-opacity duration-300"
-                    style={{ opacity: showTapCues ? 1 : 0 }}
-                  >
-                    <div className="ml-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
-                      <ChevronLeft className="h-6 w-6" />
-                    </div>
-                  </div>
-                  
-                  <div 
-                    onClick={() => handlePageChange(currentPageIndex + 1)}
-                    className="absolute top-0 right-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-end bg-gradient-to-l from-black/15 to-transparent transition-opacity duration-300"
-                    style={{ opacity: showTapCues ? 1 : 0 }}
-                  >
-                    <div className="mr-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
-                      <ChevronRight className="h-6 w-6" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Audio Mock Player */}
+        {scrollMode ? (
+          /* ===== SCROLL MODE: Alternating Image / Text Pages ===== */
+          <div className="flex flex-col w-full gap-4">
+            {/* Sticky Audio Player */}
             {story.audioFile && (
-              <div className={`rounded-2xl p-4 flex items-center gap-4 ${
-                bedtimeMode ? "bg-slate-900 border border-slate-800" : "bg-[#f5f5f7] border border-zinc-200/50"
-              }`}>
+              <div className={`sticky top-[64px] z-30 rounded-2xl p-3 sm:p-4 flex items-center gap-4 border shadow-sm transition-colors ${
+                bedtimeMode
+                  ? "bg-slate-900/95 border-slate-800 text-slate-100"
+                  : "bg-white/95 border-zinc-200/50 text-[#1d1d1f]"
+              } backdrop-blur-md`}>
                 <button
                   onClick={() => handlePlayPause()}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white transition-transform active:scale-95 shadow-sm"
@@ -309,130 +295,257 @@ function StoryReadContent() {
                   <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
                     <span className="flex items-center gap-1">
                       <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
-                      Giọng đọc: {story.voiceNarrator} (MOCK)
+                      {story.voiceNarrator} · MOCK
                     </span>
-                    <span>{isPlaying ? "Đang phát..." : "Tạm dừng"}</span>
+                    <span>{isPlaying ? "Đang phát..." : "Nhấn ▶ để nghe"}</span>
                   </div>
-                  {/* Progress bar */}
-                  <div className="w-full bg-zinc-200/50 rounded-full h-1.5 mt-1 overflow-hidden dark:bg-zinc-700">
-                    <div 
+                  <div className="w-full bg-zinc-200/50 rounded-full h-1.5 mt-1.5 overflow-hidden">
+                    <div
                       className="bg-[#ff4500] h-1.5 rounded-full transition-all duration-300"
                       style={{ width: `${audioProgress}%` }}
-                    ></div>
+                    />
                   </div>
                 </div>
-                <div className="text-xs font-mono font-bold text-zinc-400">
+                <span className="text-xs font-mono font-bold text-zinc-400 shrink-0">
                   {isPlaying ? `${Math.round(audioProgress)}%` : "0:00"}
+                </span>
+              </div>
+            )}
+
+            {/* Alternating image/text pages */}
+            <div className="flex flex-col gap-2 mt-2 pb-8">
+              {story.pages.map((page, index) => {
+                const isTextPage = page.text !== "";
+                return (
+                  <div key={index} className="flex flex-col items-center w-full">
+                    {!isTextPage ? (
+                      /* === Picture Page: full-width tall image === */
+                      <div className="w-full">
+                        <img
+                          src={page.illustrationUrl}
+                          alt={`Minh họa trang ${page.pageNumber}`}
+                          className={`w-full object-cover transition-all duration-500 ${
+                            bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
+                          }`}
+                          style={{ aspectRatio: "9/16", maxHeight: "95vh", objectPosition: "center" }}
+                        />
+                      </div>
+                    ) : (
+                      /* === Text Page: full-screen centered text === */
+                      <div
+                        className={`w-full flex flex-col justify-center items-center px-6 sm:px-10 py-14 sm:py-20 min-h-[90vh] text-center transition-all ${
+                          bedtimeMode
+                            ? "bg-slate-950 text-slate-100"
+                            : "bg-[#f5f5f7] text-[#1d1d1f]"
+                        }`}
+                      >
+                        {renderHighlightedText(page.text)}
+                        {page.textEn && (
+                          <p className={`mt-6 text-base sm:text-lg italic leading-relaxed ${
+                            bedtimeMode ? "text-slate-400" : "text-zinc-500"
+                          }`}>
+                            {page.textEn}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* End of story */}
+              <div className={`w-full flex flex-col items-center gap-6 px-6 py-14 text-center mt-4 ${
+                bedtimeMode ? "bg-slate-900 text-slate-100" : "bg-white text-[#1d1d1f]"
+              }`}>
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
+                  <CheckCircle2 className="h-10 w-10" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-orange-500">Bé đã đọc xong câu chuyện! 🎉</h2>
+                <p className="text-sm text-zinc-400 font-semibold">Cùng thảo luận với cha mẹ nhé.</p>
+                <div className={`w-full max-w-xl text-left rounded-2xl p-6 border ${
+                  bedtimeMode ? "bg-slate-950 border-slate-800" : "bg-purple-50/40 border-purple-100"
+                }`}>
+                  <h3 className="font-bold text-base text-purple-700 flex items-center gap-2 mb-3">
+                    <MessageSquare className="h-4 w-4" /> Câu hỏi trò chuyện cùng con
+                  </h3>
+                  <ul className="space-y-3">
+                    {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
+                      <li key={idx} className="flex gap-3 text-sm text-zinc-600">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-100 text-[10px] font-bold text-purple-700">{idx + 1}</span>
+                        <span className={bedtimeMode ? "text-slate-300" : "text-zinc-700"}>{q}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link
+                  href="/library"
+                  className={`rounded-full px-7 py-3 font-bold border transition-all active:scale-95 text-sm mt-2 ${
+                    bedtimeMode ? "border-slate-700 text-slate-300 hover:bg-slate-800" : "border-zinc-200 text-zinc-700 hover:bg-zinc-50 bg-white shadow-sm"
+                  }`}
+                >
+                  Về thư viện tìm truyện mới
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ===== FLIP MODE: Normal page-by-page view ===== */
+          <>
+            {!isLastPage && currentPage ? (
+              <div className="flex flex-col gap-4 sm:gap-8">
+                {/* Illustration */}
+                {!audioOnlyMode && (
+                  <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-all duration-500 ${
+                    bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
+                  }`}>
+                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950 group">
+                      <img
+                        src={currentPage.illustrationUrl}
+                        alt={`Trang ${currentPage.pageNumber}`}
+                        className={`h-full w-full object-cover transition-all duration-700 ${
+                          bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
+                        }`}
+                      />
+                      <div
+                        onClick={() => handlePageChange(currentPageIndex - 1)}
+                        className="absolute top-0 left-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-start bg-gradient-to-r from-black/15 to-transparent transition-opacity duration-300"
+                        style={{ opacity: showTapCues ? 1 : 0 }}
+                      >
+                        <div className="ml-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
+                          <ChevronLeft className="h-6 w-6" />
+                        </div>
+                      </div>
+                      <div
+                        onClick={() => handlePageChange(currentPageIndex + 1)}
+                        className="absolute top-0 right-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-end bg-gradient-to-l from-black/15 to-transparent transition-opacity duration-300"
+                        style={{ opacity: showTapCues ? 1 : 0 }}
+                      >
+                        <div className="mr-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
+                          <ChevronRight className="h-6 w-6" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Audio Player */}
+                {story.audioFile && (
+                  <div className={`rounded-2xl p-4 flex items-center gap-4 ${
+                    bedtimeMode ? "bg-slate-900 border border-slate-800" : "bg-[#f5f5f7] border border-zinc-200/50"
+                  }`}>
+                    <button
+                      onClick={() => handlePlayPause()}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white transition-transform active:scale-95 shadow-sm"
+                    >
+                      {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-white ml-0.5" />}
+                    </button>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
+                        <span className="flex items-center gap-1">
+                          <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
+                          Giọng đọc: {story.voiceNarrator} (MOCK)
+                        </span>
+                        <span>{isPlaying ? "Đang phát..." : "Tạm dừng"}</span>
+                      </div>
+                      <div className="w-full bg-zinc-200/50 rounded-full h-1.5 mt-1 overflow-hidden">
+                        <div
+                          className="bg-[#ff4500] h-1.5 rounded-full transition-all duration-300"
+                          style={{ width: `${audioProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono font-bold text-zinc-400">
+                      {isPlaying ? `${Math.round(audioProgress)}%` : "0:00"}
+                    </div>
+                  </div>
+                )}
+
+                {/* Story Text */}
+                <div className={`p-6 sm:p-8 rounded-3xl border ${
+                  bedtimeMode
+                    ? "bg-slate-900 border-slate-800 text-slate-200"
+                    : "bg-white border-zinc-200/50 text-[#1d1d1f] shadow-sm"
+                }`}>
+                  {renderHighlightedText(currentPage.text)}
+                  {currentPage.textEn && (
+                    <div className={`mt-8 pt-8 border-t text-base sm:text-xl lg:text-2xl italic leading-loose ${
+                      bedtimeMode ? "border-slate-800 text-slate-400" : "border-zinc-100 text-zinc-500"
+                    }`}>
+                      {currentPage.textEn}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Finished Page */
+              <div className={`rounded-2xl p-6 sm:p-10 border shadow-lg text-center flex flex-col items-center gap-6 ${
+                bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
+              }`}>
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
+                  <CheckCircle2 className="h-10 w-10" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-orange-500">Chúc mừng bé đã hoàn thành!</h2>
+                  <p className="text-sm text-zinc-400 font-semibold">Bạn vừa cùng con đi qua một hành trình tri thức bổ ích.</p>
+                </div>
+                <div className={`w-full text-left rounded-xl p-6 border mt-4 ${
+                  bedtimeMode ? "bg-slate-950 border-slate-800" : "bg-purple-50/30 border-purple-100"
+                }`}>
+                  <h3 className="font-bold text-lg text-purple-700 flex items-center gap-2 mb-4">
+                    <MessageSquare className="h-5 w-5 text-purple-600" />
+                    Câu hỏi trò chuyện cùng con
+                  </h3>
+                  <ul className="space-y-3">
+                    {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
+                      <li key={idx} className="flex gap-3 text-sm sm:text-base text-zinc-600">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-700 border border-purple-200">{idx + 1}</span>
+                        <span className={bedtimeMode ? "text-slate-300" : "text-zinc-700"}>{q}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 w-full mt-4 justify-center">
+                  <button onClick={() => handlePageChange(0)} className="rounded-full bg-orange-500 px-6 py-2.5 font-bold text-white shadow hover:bg-orange-600 transition-colors active:scale-95 text-sm">
+                    Đọc lại từ đầu
+                  </button>
+                  <Link href={`/story/${story.id}`} className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${bedtimeMode ? "border-slate-700 bg-slate-800 text-slate-200" : "border-orange-200 bg-orange-50/30 text-orange-700"}`}>
+                    Xem chi tiết
+                  </Link>
+                  <Link href="/library" className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${bedtimeMode ? "border-slate-700 text-slate-300 hover:bg-slate-800" : "border-zinc-200 text-zinc-700 hover:bg-zinc-50"}`}>
+                    Về thư viện
+                  </Link>
                 </div>
               </div>
             )}
 
-            {/* Story Text block */}
-            <div className={`p-6 sm:p-8 rounded-3xl border ${
-              bedtimeMode 
-                ? "bg-slate-900 border-slate-800 text-slate-200" 
-                : "bg-white border-zinc-200/50 text-[#1d1d1f] shadow-sm"
-            }`}>
-              {renderHighlightedText(currentPage.text)}
-              
-              {currentPage.textEn && (
-                <div className={`mt-8 pt-8 border-t text-base sm:text-xl lg:text-2xl italic leading-loose ${
-                  bedtimeMode ? "border-slate-800 text-slate-400" : "border-zinc-100 text-zinc-500"
-                }`}>
-                  {currentPage.textEn}
-                </div>
+            {/* Page Navigation */}
+            <div className="flex items-center justify-between mt-8">
+              <button
+                onClick={() => handlePageChange(currentPageIndex - 1)}
+                disabled={currentPageIndex === 0}
+                className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold border transition-all ${
+                  currentPageIndex === 0
+                    ? "opacity-40 cursor-not-allowed border-zinc-200 text-zinc-400"
+                    : bedtimeMode
+                      ? "bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800"
+                      : "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50 shadow-sm"
+                }`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Trang trước
+              </button>
+              {!isLastPage && (
+                <button
+                  onClick={() => handlePageChange(currentPageIndex + 1)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95 shadow-sm"
+                >
+                  Trang tiếp theo
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               )}
             </div>
-          </div>
-        ) : (
-          /* Finished Story / Parent Questions Page */
-          <div className={`rounded-2xl p-6 sm:p-10 border shadow-lg text-center flex flex-col items-center gap-6 ${
-            bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
-          }`}>
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
-              <CheckCircle2 className="h-10 w-10" />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-orange-500">Chúc mừng bé đã hoàn thành!</h2>
-              <p className="text-sm text-zinc-400 font-semibold">Bạn vừa cùng con đi qua một hành trình tri thức bổ ích.</p>
-            </div>
-
-            {/* Parent-Child Discussion block */}
-            <div className={`w-full text-left rounded-xl p-6 border mt-4 ${
-              bedtimeMode ? "bg-slate-950 border-slate-850" : "bg-purple-50/30 border-purple-100"
-            }`}>
-              <h3 className="font-bold text-lg text-purple-700 flex items-center gap-2 mb-4">
-                <MessageSquare className="h-5 w-5 text-purple-600" />
-                Câu hỏi trò chuyện cùng con (Parent Guide)
-              </h3>
-              <ul className="space-y-3">
-                {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
-                  <li key={idx} className="flex gap-3 text-sm sm:text-base text-zinc-600">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-700 border border-purple-200">
-                      {idx + 1}
-                    </span>
-                    <span className={bedtimeMode ? "text-slate-300" : "text-zinc-700"}>{q}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 w-full mt-4 justify-center">
-              <button
-                onClick={() => handlePageChange(0)}
-                className="rounded-full bg-orange-500 px-6 py-2.5 font-bold text-white shadow hover:bg-orange-600 transition-colors active:scale-95 text-sm"
-              >
-                Đọc lại từ đầu
-              </button>
-              <Link
-                href={`/story/${story.id}`}
-                className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${
-                  bedtimeMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-750" : "border-orange-200 bg-orange-50/30 text-orange-700 hover:bg-orange-50"
-                }`}
-              >
-                Xem chi tiết truyện này
-              </Link>
-              <Link
-                href="/library"
-                className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${
-                  bedtimeMode ? "border-slate-700 hover:bg-slate-800 text-slate-300" : "border-zinc-200 hover:bg-zinc-50 text-zinc-700"
-                }`}
-              >
-                Về thư viện tìm truyện mới
-              </Link>
-            </div>
-          </div>
+          </>
         )}
-
-        {/* Page Nav controls */}
-        <div className="flex items-center justify-between mt-8">
-          <button
-            onClick={() => handlePageChange(currentPageIndex - 1)}
-            disabled={currentPageIndex === 0}
-            className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold border transition-all ${
-              currentPageIndex === 0 
-                ? "opacity-40 cursor-not-allowed border-zinc-200 text-zinc-400" 
-                : bedtimeMode
-                  ? "bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800"
-                  : "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50 shadow-sm"
-            }`}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Trang trước
-          </button>
-
-          {!isLastPage ? (
-            <button
-              onClick={() => handlePageChange(currentPageIndex + 1)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95 shadow-sm"
-            >
-              Trang tiếp theo
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          ) : null}
-        </div>
-
       </div>
 
     </div>
