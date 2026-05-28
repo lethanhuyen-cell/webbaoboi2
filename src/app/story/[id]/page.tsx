@@ -103,39 +103,39 @@ export default function StoryDetail() {
         <div className="lg:col-span-7 flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">
+              <span className="rounded-full bg-[#1d1d1f] px-3.5 py-1 text-xs font-bold text-white shadow-sm">
                 Độ tuổi: {story.ageGroup} tuổi
               </span>
-              <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700 border border-orange-100">
+              <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 border border-zinc-200/50">
                 Chủ đề: {story.topic}
               </span>
-              <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700 border border-purple-100">
+              <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 border border-zinc-200/50">
                 Cảm xúc: {story.mainEmotion}
               </span>
             </div>
             
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f] leading-tight">
               {story.title}
             </h1>
             {story.titleEn && (
-              <p className="text-zinc-400 text-xs sm:text-sm font-semibold italic -mt-1 sm:-mt-1">
+              <p className="text-zinc-400 text-xs sm:text-sm font-semibold italic -mt-1">
                 English: {story.titleEn}
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-zinc-500 mt-1 sm:mt-2 bg-zinc-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl w-fit">
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-zinc-500 mt-2 bg-[#f5f5f7] px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl w-fit">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-zinc-600" />
                 <span>{story.readDuration} phút đọc</span>
               </div>
-              <span className="text-zinc-200 hidden sm:inline">|</span>
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
+              <span className="text-zinc-300 hidden sm:inline">|</span>
+              <div className="flex items-center gap-1.5">
+                <Volume2 className="h-3.5 w-3.5 text-zinc-600" />
                 <span>{story.audioDuration} phút nghe</span>
               </div>
               <span className="text-zinc-200 hidden sm:inline">|</span>
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <Languages className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500" />
+              <div className="flex items-center gap-1.5">
+                <Languages className="h-3.5 w-3.5 text-zinc-600" />
                 <span>
                   {story.language === "vi" ? "Tiếng Việt" : story.language === "en" ? "English" : "Việt - Anh"}
                 </span>
@@ -143,24 +143,24 @@ export default function StoryDetail() {
             </div>
           </div>
 
-          <p className="text-zinc-600 text-sm sm:text-base leading-relaxed">
+          <p className="text-zinc-650 text-sm sm:text-base leading-relaxed">
             {story.longDescription || story.description}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mt-2">
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <Link
               href={`/story/${story.id}/read`}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-orange-500 px-8 font-bold text-white shadow-md hover:bg-orange-600 transition-all hover:shadow-lg flex-1 sm:flex-initial"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] px-8 font-bold text-white shadow-sm transition-all flex-1 sm:flex-initial active:scale-95"
             >
-              <BookOpen className="h-5 w-5" />
+              <BookOpen className="h-4 w-4" />
               Bắt đầu đọc truyện
             </Link>
             {story.audioFile && (
               <Link
                 href={`/story/${story.id}/read?autoplay=true`}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-orange-200 bg-orange-50/50 px-8 font-bold text-orange-700 hover:bg-orange-50 transition-colors flex-1 sm:flex-initial"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-8 font-bold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-all flex-1 sm:flex-initial active:scale-95"
               >
-                <Volume2 className="h-5 w-5" />
+                <Volume2 className="h-4 w-4 text-zinc-500" />
                 Nghe Kể Chuyện (Audio)
               </Link>
             )}
@@ -198,29 +198,29 @@ export default function StoryDetail() {
         {!showParentGuide ? (
           <button 
             onClick={() => setShowParentGuide(true)}
-            className="flex w-full items-center justify-between rounded-2xl border border-dashed border-orange-200 bg-orange-50/30 p-6 hover:bg-orange-50/80 transition-colors"
+            className="flex w-full items-center justify-between rounded-3xl border border-zinc-200/50 bg-[#f5f5f7] p-6 hover:bg-zinc-100 transition-all active:scale-[0.99]"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                <ShieldAlert className="h-5 w-5 text-orange-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white border border-zinc-200/40">
+                <ShieldAlert className="h-5 w-5 text-zinc-500" />
               </div>
               <div className="text-left">
-                <h3 className="font-bold text-zinc-900">Góc dành cho Phụ huynh</h3>
-                <p className="text-sm text-zinc-500">Xem giá trị giáo dục và câu hỏi tương tác</p>
+                <h3 className="font-bold text-[#1d1d1f] text-sm sm:text-base">Góc dành cho Phụ huynh</h3>
+                <p className="text-xs sm:text-sm text-zinc-450 font-medium">Xem giá trị giáo dục và câu hỏi tương tác</p>
               </div>
             </div>
-            <div className="text-orange-500 font-bold text-sm">Mở khóa →</div>
+            <div className="text-[#ff4500] font-bold text-xs sm:text-sm">Mở khóa →</div>
           </button>
         ) : (
-          <div className="rounded-2xl border border-orange-100 bg-gradient-to-r from-orange-50/20 to-amber-50/20 p-6 sm:p-8 shadow-sm relative">
+          <div className="rounded-3xl border border-zinc-200 bg-[#f5f5f7] p-6 sm:p-8 relative">
             <button 
               onClick={() => setShowParentGuide(false)}
-              className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-600 text-sm font-semibold"
+              className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-800 text-xs font-bold"
             >
               Đóng ✕
             </button>
-            <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2 mb-4">
-              <Heart className="h-5 w-5 text-orange-500 fill-orange-500" />
+            <h2 className="text-lg sm:text-xl font-bold text-[#1d1d1f] flex items-center gap-2 mb-4">
+              <Heart className="h-5 w-5 text-[#ff4500] fill-[#ff4500]" />
               Hướng dẫn dành cho phụ huynh (Parent Guide)
             </h2>
             

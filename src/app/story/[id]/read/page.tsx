@@ -188,7 +188,7 @@ function StoryReadContent() {
       
       {/* Top Reading Controller Bar */}
       <div className={`sticky top-[64px] z-40 border-b px-4 py-3 sm:px-6 lg:px-8 transition-colors ${
-        bedtimeMode ? "bg-slate-900/90 border-slate-800" : "bg-white/90 border-orange-100"
+        bedtimeMode ? "bg-slate-900/90 border-slate-800" : "bg-white/80 border-zinc-200/40"
       } backdrop-blur-md`}>
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <Link
@@ -288,19 +288,19 @@ function StoryReadContent() {
 
             {/* Audio Mock Player */}
             {story.audioFile && (
-              <div className={`rounded-xl p-4 flex items-center gap-4 ${
-                bedtimeMode ? "bg-slate-900 border border-slate-800" : "bg-orange-50/50 border border-orange-100"
+              <div className={`rounded-2xl p-4 flex items-center gap-4 ${
+                bedtimeMode ? "bg-slate-900 border border-slate-800" : "bg-[#f5f5f7] border border-zinc-200/50"
               }`}>
                 <button
                   onClick={() => handlePlayPause()}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow hover:bg-orange-600 transition-colors"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white transition-transform active:scale-95 shadow-sm"
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-white ml-0.5" />}
                 </button>
                 <div className="flex-1">
                   <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
                     <span className="flex items-center gap-1">
-                      <Volume2 className="h-3.5 w-3.5 text-orange-500" />
+                      <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
                       Giọng đọc: {story.voiceNarrator} (MOCK)
                     </span>
                     <span>{isPlaying ? "Đang phát..." : "Tạm dừng"}</span>
@@ -308,7 +308,7 @@ function StoryReadContent() {
                   {/* Progress bar */}
                   <div className="w-full bg-zinc-200/50 rounded-full h-1.5 mt-1 overflow-hidden dark:bg-zinc-700">
                     <div 
-                      className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                      className="bg-[#ff4500] h-1.5 rounded-full transition-all duration-300"
                       style={{ width: `${audioProgress}%` }}
                     ></div>
                   </div>
@@ -320,10 +320,10 @@ function StoryReadContent() {
             )}
 
             {/* Story Text block */}
-            <div className={`p-6 sm:p-8 rounded-2xl shadow-sm border ${
+            <div className={`p-6 sm:p-8 rounded-3xl border ${
               bedtimeMode 
                 ? "bg-slate-900 border-slate-800 text-slate-200" 
-                : "bg-white border-orange-50 text-zinc-800"
+                : "bg-white border-zinc-200/50 text-[#1d1d1f] shadow-sm"
             }`}>
               {renderHighlightedText(currentPage.text)}
               
@@ -417,7 +417,7 @@ function StoryReadContent() {
           {!isLastPage ? (
             <button
               onClick={() => handlePageChange(currentPageIndex + 1)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow hover:bg-orange-600 transition-all hover:scale-[1.02]"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95 shadow-sm"
             >
               Trang tiếp theo
               <ChevronRight className="h-4 w-4" />
