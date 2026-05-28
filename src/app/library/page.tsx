@@ -80,9 +80,9 @@ function LibraryContent() {
       const q = search.toLowerCase();
       result = result.filter(
         s => 
-          s.title.toLowerCase().includes(q) || 
-          s.description.toLowerCase().includes(q) || 
-          s.keywords.some(k => k.toLowerCase().includes(q))
+          (s.title?.toLowerCase() || "").includes(q) || 
+          (s.description?.toLowerCase() || "").includes(q) || 
+          (Array.isArray(s.keywords) ? s.keywords.some(k => k.toLowerCase().includes(q)) : false)
       );
     }
 
@@ -94,9 +94,18 @@ function LibraryContent() {
     // Topic
     if (topic) {
       if (topic === "Bedtime") {
-        result = result.filter(s => s.parentGuide.educationalValue.toLowerCase().includes("ngủ") || s.description.toLowerCase().includes("ngủ") || s.seoDescription.toLowerCase().includes("ngủ ngon") || s.id === "story-2" || s.id === "story-3");
+        result = result.filter(s => {
+          const eduValue = s.parentGuide?.educationalValue?.toLowerCase() || "";
+          const desc = s.description?.toLowerCase() || "";
+          const seoDesc = s.seoDescription?.toLowerCase() || "";
+          return eduValue.includes("ngủ") || 
+                 desc.includes("ngủ") || 
+                 seoDesc.includes("ngủ ngon") || 
+                 s.id === "story-2" || 
+                 s.id === "story-3";
+        });
       } else {
-        result = result.filter(s => s.topic.toLowerCase() === topic.toLowerCase());
+        result = result.filter(s => (s.topic?.toLowerCase() || "") === topic.toLowerCase());
       }
     }
 

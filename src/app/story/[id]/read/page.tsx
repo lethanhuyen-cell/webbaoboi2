@@ -359,7 +359,7 @@ function StoryReadContent() {
                 Câu hỏi trò chuyện cùng con (Parent Guide)
               </h3>
               <ul className="space-y-3">
-                {story.parentGuide.discussionQuestions.map((q, idx) => (
+                {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
                   <li key={idx} className="flex gap-3 text-sm sm:text-base text-zinc-600">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-700 border border-purple-200">
                       {idx + 1}

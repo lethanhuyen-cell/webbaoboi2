@@ -60,7 +60,16 @@ export default function Home() {
 
   const featuredStory = publicStories[0] || stories[0];
   const newStories = publicStories.slice(0, 4);
-  const bedtimeStories = publicStories.filter(s => s.parentGuide.educationalValue.toLowerCase().includes("ngủ") || s.description.toLowerCase().includes("ngủ") || s.seoDescription.toLowerCase().includes("ngủ ngon") || s.id === "story-2" || s.id === "story-3").slice(0, 3);
+  const bedtimeStories = publicStories.filter(s => {
+    const eduValue = s.parentGuide?.educationalValue?.toLowerCase() || "";
+    const desc = s.description?.toLowerCase() || "";
+    const seoDesc = s.seoDescription?.toLowerCase() || "";
+    return eduValue.includes("ngủ") || 
+           desc.includes("ngủ") || 
+           seoDesc.includes("ngủ ngon") || 
+           s.id === "story-2" || 
+           s.id === "story-3";
+  }).slice(0, 3);
 
   const topics = [
     { name: "Cảm xúc", color: "bg-red-50 text-red-700 border-red-100 hover:bg-red-100" },

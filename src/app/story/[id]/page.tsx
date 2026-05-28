@@ -231,7 +231,7 @@ export default function StoryDetail() {
                   Giá trị giáo dục & Kỹ năng phát triển
                 </h4>
                 <p className="text-sm text-zinc-600 leading-relaxed bg-white p-4 rounded-xl border border-orange-50/50">
-                  {story.parentGuide.educationalValue}
+                  {story.parentGuide?.educationalValue || "Chưa có thông tin giáo dục."}
                 </p>
               </div>
 
@@ -241,7 +241,7 @@ export default function StoryDetail() {
                   Gợi ý câu hỏi thảo luận cùng con
                 </h4>
                 <ul className="space-y-2 text-sm text-zinc-600">
-                  {story.parentGuide.discussionQuestions.map((q, idx) => (
+                  {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
                     <li key={idx} className="flex gap-2.5 bg-white p-3 rounded-xl border border-purple-50/50">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-50 text-[10px] font-bold text-purple-600 border border-purple-100">
                         {idx + 1}
