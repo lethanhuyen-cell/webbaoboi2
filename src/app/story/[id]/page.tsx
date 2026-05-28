@@ -29,6 +29,7 @@ export default function StoryDetail() {
   const [story, setStory] = useState<Story | null>(null);
   const [relatedStories, setRelatedStories] = useState<Story[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [showParentGuide, setShowParentGuide] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -193,40 +194,66 @@ export default function StoryDetail() {
       </div>
 
       {/* Parent Guide Section */}
-      <div className="rounded-2xl border border-orange-100 bg-gradient-to-r from-orange-50/20 to-amber-50/20 p-6 sm:p-8 mb-12 shadow-sm">
-        <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2 mb-4">
-          <Heart className="h-5 w-5 text-orange-500 fill-orange-500" />
-          Hướng dẫn dành cho phụ huynh (Parent Guide)
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h4 className="font-bold text-sm text-zinc-700 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-orange-500" />
-              Giá trị giáo dục & Kỹ năng phát triển
-            </h4>
-            <p className="text-sm text-zinc-600 leading-relaxed bg-white p-4 rounded-xl border border-orange-50/50">
-              {story.parentGuide.educationalValue}
-            </p>
-          </div>
+      <div className="mb-12">
+        {!showParentGuide ? (
+          <button 
+            onClick={() => setShowParentGuide(true)}
+            className="flex w-full items-center justify-between rounded-2xl border border-dashed border-orange-200 bg-orange-50/30 p-6 hover:bg-orange-50/80 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+                <ShieldAlert className="h-5 w-5 text-orange-600" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-bold text-zinc-900">Góc dành cho Phụ huynh</h3>
+                <p className="text-sm text-zinc-500">Xem giá trị giáo dục và câu hỏi tương tác</p>
+              </div>
+            </div>
+            <div className="text-orange-500 font-bold text-sm">Mở khóa →</div>
+          </button>
+        ) : (
+          <div className="rounded-2xl border border-orange-100 bg-gradient-to-r from-orange-50/20 to-amber-50/20 p-6 sm:p-8 shadow-sm relative">
+            <button 
+              onClick={() => setShowParentGuide(false)}
+              className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-600 text-sm font-semibold"
+            >
+              Đóng ✕
+            </button>
+            <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2 mb-4">
+              <Heart className="h-5 w-5 text-orange-500 fill-orange-500" />
+              Hướng dẫn dành cho phụ huynh (Parent Guide)
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-bold text-sm text-zinc-700 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="h-4 w-4 text-orange-500" />
+                  Giá trị giáo dục & Kỹ năng phát triển
+                </h4>
+                <p className="text-sm text-zinc-600 leading-relaxed bg-white p-4 rounded-xl border border-orange-50/50">
+                  {story.parentGuide.educationalValue}
+                </p>
+              </div>
 
-          <div>
-            <h4 className="font-bold text-sm text-zinc-700 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-              <HelpCircle className="h-4 w-4 text-purple-500" />
-              Gợi ý câu hỏi thảo luận cùng con
-            </h4>
-            <ul className="space-y-2 text-sm text-zinc-600">
-              {story.parentGuide.discussionQuestions.map((q, idx) => (
-                <li key={idx} className="flex gap-2.5 bg-white p-3 rounded-xl border border-purple-50/50">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-50 text-[10px] font-bold text-purple-600 border border-purple-100">
-                    {idx + 1}
-                  </span>
-                  <span>{q}</span>
-                </li>
-              ))}
-            </ul>
+              <div>
+                <h4 className="font-bold text-sm text-zinc-700 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                  <HelpCircle className="h-4 w-4 text-purple-500" />
+                  Gợi ý câu hỏi thảo luận cùng con
+                </h4>
+                <ul className="space-y-2 text-sm text-zinc-600">
+                  {story.parentGuide.discussionQuestions.map((q, idx) => (
+                    <li key={idx} className="flex gap-2.5 bg-white p-3 rounded-xl border border-purple-50/50">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-50 text-[10px] font-bold text-purple-600 border border-purple-100">
+                        {idx + 1}
+                      </span>
+                      <span>{q}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Related Stories */}

@@ -221,9 +221,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured/New Stories Grid */}
+      {/* Daily Gift & Continue Reading Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-8">
+        <div className="rounded-3xl bg-gradient-to-r from-orange-400 to-amber-400 p-1">
+          <div className="rounded-2xl bg-white p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-orange-600 shrink-0 shadow-inner">
+                <Sparkles className="h-8 w-8" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-zinc-900">Món quà hôm nay dành cho bé 🎁</h2>
+                <p className="text-sm text-zinc-500">Khám phá thế giới qua những trang truyện đầy màu sắc!</p>
+              </div>
+            </div>
+            {featuredStory && (
+              <Link 
+                href={`/story/${featuredStory.id}`}
+                className="w-full md:w-auto flex items-center gap-4 rounded-xl border border-orange-100 bg-orange-50/50 p-3 hover:bg-orange-100 transition-colors"
+              >
+                <img src={featuredStory.thumbnailHorizontal} alt="" className="h-12 w-20 rounded-md object-cover shadow-sm" />
+                <div className="flex-1">
+                  <div className="text-xs font-semibold text-orange-600">Gợi ý hôm nay</div>
+                  <div className="text-sm font-bold text-zinc-900 line-clamp-1">{featuredStory.title}</div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-orange-400" />
+              </Link>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured/New Stories Carousel */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between mb-6">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-orange-600 uppercase tracking-wider">
               <Flame className="h-4 w-4 text-orange-500" />
@@ -237,9 +267,9 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 hide-scrollbar">
           {newStories.map((story) => (
-            <div key={story.id} className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-all hover:translate-y-[-2px]">
+            <div key={story.id} className="snap-start shrink-0 w-[280px] sm:w-[320px] group relative flex flex-col overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
               <div className="relative aspect-video w-full overflow-hidden bg-zinc-100">
                 <img
                   src={story.thumbnailHorizontal}

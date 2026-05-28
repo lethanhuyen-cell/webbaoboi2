@@ -244,7 +244,7 @@ function StoryReadContent() {
               <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-all duration-500 ${
                 bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
               }`}>
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950">
+                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950 group">
                   <img
                     src={currentPage.illustrationUrl}
                     alt={`Trang ${currentPage.pageNumber}`}
@@ -252,6 +252,25 @@ function StoryReadContent() {
                       bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
                     }`}
                   />
+                  
+                  {/* Tap to Turn Zones */}
+                  <div 
+                    onClick={() => handlePageChange(currentPageIndex - 1)}
+                    className="absolute top-0 left-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-start opacity-0 hover:opacity-100 transition-opacity bg-gradient-to-r from-black/20 to-transparent"
+                  >
+                    <div className="ml-4 rounded-full bg-white/20 p-2 backdrop-blur-sm text-white">
+                      <ChevronLeft className="h-8 w-8" />
+                    </div>
+                  </div>
+                  
+                  <div 
+                    onClick={() => handlePageChange(currentPageIndex + 1)}
+                    className="absolute top-0 right-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-end opacity-0 hover:opacity-100 transition-opacity bg-gradient-to-l from-black/20 to-transparent"
+                  >
+                    <div className="mr-4 rounded-full bg-white/20 p-2 backdrop-blur-sm text-white">
+                      <ChevronRight className="h-8 w-8" />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
