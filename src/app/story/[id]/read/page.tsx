@@ -18,8 +18,10 @@ import {
   MessageSquare,
   Sparkles,
   BookOpen,
-  CheckCircle2
+  CheckCircle2,
+  Headphones
 } from "lucide-react";
+import confetti from "canvas-confetti";
 
 function StoryReadContent() {
   const params = useParams();
@@ -31,6 +33,7 @@ function StoryReadContent() {
   const [story, setStory] = useState<Story | null>(null);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [bedtimeMode, setBedtimeMode] = useState(false);
+  const [audioOnlyMode, setAudioOnlyMode] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
   const [highlightWordIndex, setHighlightWordIndex] = useState(-1);
@@ -131,6 +134,18 @@ function StoryReadContent() {
   const isLastPage = currentPageIndex === story.pages.length;
   const currentPage: StoryPage | undefined = story.pages[currentPageIndex];
 
+  // Trigger celebration when reaching the end
+  useEffect(() => {
+    if (isLastPage) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#f97316', '#fbbf24', '#34d399', '#60a5fa']
+      });
+    }
+  }, [isLastPage]);
+
   // Helper to split text and render with highlighting
   const renderHighlightedText = (text: string) => {
     const words = text.split(" ");
@@ -189,8 +204,22 @@ function StoryReadContent() {
             </span>
           </div>
 
-          {/* Bedtime Mode Toggle & Controls */}
+          {/* Viewing Modes Controls */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setAudioOnlyMode(!audioOnlyMode);
+                if (!audioOnlyMode) setBedtimeMode(true); // Default to bedtime when audio-only
+              }}
+              className={`rounded-full p-2 transition-all flex items-center gap-1.5 ${
+                audioOnlyMode ? "bg-purple-100 text-purple-700" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              }`}
+              title={audioOnlyMode ? "Tắt chế độ chỉ nghe" : "Bật chế độ chỉ nghe (All Ears)"}
+            >
+              <Headphones className="h-4 w-4" />
+              <span className="hidden md:inline text-xs font-semibold">Chỉ nghe</span>
+            </button>
+            <div className="w-px h-5 bg-zinc-200 mx-1"></div>
             <button
               onClick={() => setBedtimeMode(!bedtimeMode)}
               className={`rounded-full p-2 transition-all ${
@@ -210,20 +239,22 @@ function StoryReadContent() {
         {!isLastPage && currentPage ? (
           /* Normal Page View */
           <div className="flex flex-col gap-8">
-            {/* Illustration */}
-            <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-colors ${
-              bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
-            }`}>
-              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950">
-                <img
-                  src={currentPage.illustrationUrl}
-                  alt={`Trang ${currentPage.pageNumber}`}
-                  className={`h-full w-full object-cover transition-all duration-700 ${
-                    bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
-                  }`}
-                />
+            {/* Illustration (Hidden in Audio-Only Mode) */}
+            {!audioOnlyMode && (
+              <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-all duration-500 ${
+                bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
+              }`}>
+                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950">
+                  <img
+                    src={currentPage.illustrationUrl}
+                    alt={`Trang ${currentPage.pageNumber}`}
+                    className={`h-full w-full object-cover transition-all duration-700 ${
+                      bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
+                    }`}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Audio Mock Player */}
             {story.audioFile && (
