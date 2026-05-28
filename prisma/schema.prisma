@@ -19,6 +19,7 @@ model Story {
   mainEmotion                String
   skill                      String
   description                String
+  descriptionEn              String?
   longDescription            String
   storyText                  String
   wordCount                  Int

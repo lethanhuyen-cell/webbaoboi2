@@ -16,14 +16,16 @@ async function getStoriesFromDb(): Promise<Story[] | null> {
     if (dbStories.length === 0) {
       console.log("SQLite Database is empty, seeding initial stories...");
       for (const story of INITIAL_STORIES) {
+        // Strip fields not present in Prisma schema
+        const { descriptionEn: _de, createdAt: _ca, updatedAt: _ua, ...rest } = story as any;
         await prisma.story.create({
           data: {
-            ...story,
-            keywords: JSON.stringify(story.keywords || []),
-            pages: JSON.stringify(story.pages || []),
-            safetyChecklist: JSON.stringify(story.safetyChecklist || {}),
-            parentGuide: JSON.stringify(story.parentGuide || {}),
-            socialOutputs: JSON.stringify(story.socialOutputs || {}),
+            ...rest,
+            keywords: JSON.stringify(rest.keywords || []),
+            pages: JSON.stringify(rest.pages || []),
+            safetyChecklist: JSON.stringify(rest.safetyChecklist || {}),
+            parentGuide: JSON.stringify(rest.parentGuide || {}),
+            socialOutputs: JSON.stringify(rest.socialOutputs || {}),
           } as any
         });
       }
