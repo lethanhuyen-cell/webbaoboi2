@@ -11,6 +11,13 @@ export default function ParentGate({ children }: { children: React.ReactNode }) 
   const [error, setError] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const generateMath = () => {
+    setNum1(Math.floor(Math.random() * 9) + 4);
+    setNum2(Math.floor(Math.random() * 9) + 3);
+    setAnswer("");
+    setError(false);
+  };
+
   useEffect(() => {
     setMounted(true);
     const verified = sessionStorage.getItem("parentVerified");
@@ -20,13 +27,6 @@ export default function ParentGate({ children }: { children: React.ReactNode }) 
       generateMath();
     }
   }, []);
-
-  const generateMath = () => {
-    setNum1(Math.floor(Math.random() * 9) + 4);
-    setNum2(Math.floor(Math.random() * 9) + 3);
-    setAnswer("");
-    setError(false);
-  };
 
   const handleVerify = (e: React.FormEvent) => {
     e.preventDefault();
