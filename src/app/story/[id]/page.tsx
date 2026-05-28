@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getStoryById, getStories } from "@/data/store";
+import { getStoryById, getStories, syncStoriesFromServer } from "@/data/store";
 import { Story } from "@/data/mockStories";
 import { 
   Clock, 
@@ -33,18 +33,28 @@ export default function StoryDetail() {
 
   useEffect(() => {
     if (!id) return;
-    const currentStory = getStoryById(id);
-    if (currentStory) {
-      setStory(currentStory);
-      
-      // Get related stories (same age group or same topic, excluding current)
-      const allStories = getStories().filter(s => s.reviewStatus === "published");
-      const related = allStories
-        .filter(s => s.id !== id && (s.ageGroup === currentStory.ageGroup || s.topic === currentStory.topic))
-        .slice(0, 3);
-      setRelatedStories(related.length > 0 ? related : allStories.filter(s => s.id !== id).slice(0, 3));
-    }
+    
+    const loadStoryData = (storyId: string) => {
+      const currentStory = getStoryById(storyId);
+      if (currentStory) {
+        setStory(currentStory);
+        
+        // Get related stories (same age group or same topic, excluding current)
+        const allStories = getStories().filter(s => s.reviewStatus === "published");
+        const related = allStories
+          .filter(s => s.id !== storyId && (s.ageGroup === currentStory.ageGroup || s.topic === currentStory.topic))
+          .slice(0, 3);
+        setRelatedStories(related.length > 0 ? related : allStories.filter(s => s.id !== storyId).slice(0, 3));
+      }
+    };
+
+    loadStoryData(id);
     setMounted(true);
+
+    // Sync from server DB in background
+    syncStoriesFromServer().then(() => {
+      loadStoryData(id);
+    });
   }, [id]);
 
   if (!mounted) {

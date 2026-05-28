@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getStoryById } from "@/data/store";
+import { getStoryById, syncStoriesFromServer } from "@/data/store";
 import { Story, StoryPage } from "@/data/mockStories";
 import { 
   ArrowLeft, 
@@ -49,6 +49,14 @@ function StoryReadContent() {
       setStory(currentStory);
     }
     setMounted(true);
+
+    // Sync from server DB in background
+    syncStoriesFromServer().then(() => {
+      const updatedStory = getStoryById(id);
+      if (updatedStory) {
+        setStory(updatedStory);
+      }
+    });
   }, [id]);
 
   useEffect(() => {

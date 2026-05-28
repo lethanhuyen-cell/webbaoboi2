@@ -34,7 +34,7 @@ export async function syncStoriesFromServer(): Promise<Story[]> {
     const res = await fetch("/api/stories");
     if (!res.ok) throw new Error("Server error");
     const json = await res.json();
-    if (json.success && json.stories) {
+    if (json.success && Array.isArray(json.stories) && json.stories.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(json.stories));
       return json.stories;
     }
