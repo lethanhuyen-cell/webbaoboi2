@@ -1,11 +1,14 @@
 /**
  * Seed script: populates the SQLite dev.db with INITIAL_STORIES
  * Run: npm run db:seed
- */
-import path from "path";
 import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL || "postgres://dummy:dummy@localhost:5432/dummy";
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 /**
  * Strip any fields from story that are not in the Prisma schema.
