@@ -293,6 +293,17 @@ export default function StoryDetail() {
           ))}
         </div>
       </div>
+
+      {/* Bottom Back Button */}
+      <div className="mt-12 flex justify-center border-t border-zinc-100 pt-6">
+        <Link
+          href="/library"
+          className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-xs sm:text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-colors shadow-sm active:scale-95"
+        >
+          <ArrowLeft className="h-4 w-4 text-zinc-450" />
+          Quay lại thư viện truyện
+        </Link>
+      </div>
     </div>
   );
 }

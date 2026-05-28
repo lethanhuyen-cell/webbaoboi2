@@ -38,6 +38,7 @@ function StoryReadContent() {
   const [audioProgress, setAudioProgress] = useState(0);
   const [highlightWordIndex, setHighlightWordIndex] = useState(-1);
   const [mounted, setMounted] = useState(false);
+  const [showTapCues, setShowTapCues] = useState(true);
 
   const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -49,6 +50,14 @@ function StoryReadContent() {
     }
     setMounted(true);
   }, [id]);
+
+  useEffect(() => {
+    setShowTapCues(true);
+    const timer = setTimeout(() => {
+      setShowTapCues(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [currentPageIndex]);
 
   // Handle autoplay and mock audio playback
   useEffect(() => {
@@ -184,12 +193,12 @@ function StoryReadContent() {
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <Link
             href={`/story/${story.id}`}
-            className={`inline-flex items-center gap-1 text-sm font-bold transition-colors ${
+            className={`inline-flex items-center gap-1 text-xs sm:text-sm font-bold transition-colors ${
               bedtimeMode ? "text-slate-400 hover:text-white" : "text-zinc-500 hover:text-orange-500"
             }`}
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Quay lại chi tiết</span>
+            <span>Trở về</span>
           </Link>
 
           <div className="flex items-center gap-1 text-center">
@@ -253,22 +262,24 @@ function StoryReadContent() {
                     }`}
                   />
                   
-                  {/* Tap to Turn Zones */}
+                   {/* Tap to Turn Zones */}
                   <div 
                     onClick={() => handlePageChange(currentPageIndex - 1)}
-                    className="absolute top-0 left-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-start opacity-0 hover:opacity-100 transition-opacity bg-gradient-to-r from-black/20 to-transparent"
+                    className="absolute top-0 left-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-start bg-gradient-to-r from-black/15 to-transparent transition-opacity duration-300"
+                    style={{ opacity: showTapCues ? 1 : 0 }}
                   >
-                    <div className="ml-4 rounded-full bg-white/20 p-2 backdrop-blur-sm text-white">
-                      <ChevronLeft className="h-8 w-8" />
+                    <div className="ml-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
+                      <ChevronLeft className="h-6 w-6" />
                     </div>
                   </div>
                   
                   <div 
                     onClick={() => handlePageChange(currentPageIndex + 1)}
-                    className="absolute top-0 right-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-end opacity-0 hover:opacity-100 transition-opacity bg-gradient-to-l from-black/20 to-transparent"
+                    className="absolute top-0 right-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-end bg-gradient-to-l from-black/15 to-transparent transition-opacity duration-300"
+                    style={{ opacity: showTapCues ? 1 : 0 }}
                   >
-                    <div className="mr-4 rounded-full bg-white/20 p-2 backdrop-blur-sm text-white">
-                      <ChevronRight className="h-8 w-8" />
+                    <div className="mr-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
+                      <ChevronRight className="h-6 w-6" />
                     </div>
                   </div>
                 </div>
@@ -359,16 +370,24 @@ function StoryReadContent() {
               </ul>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full mt-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 w-full mt-4 justify-center">
               <button
                 onClick={() => handlePageChange(0)}
-                className="rounded-full bg-orange-500 px-6 py-2.5 font-bold text-white shadow hover:bg-orange-600 transition-colors"
+                className="rounded-full bg-orange-500 px-6 py-2.5 font-bold text-white shadow hover:bg-orange-600 transition-colors active:scale-95 text-sm"
               >
                 Đọc lại từ đầu
               </button>
               <Link
+                href={`/story/${story.id}`}
+                className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${
+                  bedtimeMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-750" : "border-orange-200 bg-orange-50/30 text-orange-700 hover:bg-orange-50"
+                }`}
+              >
+                Xem chi tiết truyện này
+              </Link>
+              <Link
                 href="/library"
-                className={`rounded-full px-6 py-2.5 font-bold border transition-colors ${
+                className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${
                   bedtimeMode ? "border-slate-700 hover:bg-slate-800 text-slate-300" : "border-zinc-200 hover:bg-zinc-50 text-zinc-700"
                 }`}
               >

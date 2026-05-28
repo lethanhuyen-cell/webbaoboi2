@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { BookOpen, Settings, Compass, Volume2, Menu, X } from "lucide-react";
+import { BookOpen, Settings, Compass, Volume2, Menu, X, Search } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Trang chủ", icon: Compass, exact: true },
@@ -13,13 +13,24 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [headerSearch, setHeaderSearch] = useState("");
 
   const isActive = (href: string, exact: boolean) => {
     if (exact) {
       return pathname === href;
     }
     return pathname.startsWith(href);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (headerSearch.trim()) {
+      router.push(`/library?search=${encodeURIComponent(headerSearch.trim())}`);
+      setHeaderSearch("");
+      setMobileOpen(false);
+    }
   };
 
   return (
@@ -96,6 +107,17 @@ export default function Header() {
         {/* Mobile Dropdown Nav */}
         {mobileOpen && (
           <div className="md:hidden border-t border-orange-50 bg-white/95 backdrop-blur-md px-4 py-3 flex flex-col gap-1 animate-fade-in">
+            {/* Quick Search */}
+            <form onSubmit={handleSearchSubmit} className="relative w-full mb-2">
+              <Search className="absolute top-2.5 left-3 h-4 w-4 text-orange-400" />
+              <input
+                type="text"
+                placeholder="Tìm truyện..."
+                value={headerSearch}
+                onChange={(e) => setHeaderSearch(e.target.value)}
+                className="w-full rounded-full border border-orange-100 bg-orange-50/30 py-2 pl-9 pr-4 text-xs font-medium outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 text-zinc-800"
+              />
+            </form>
             {navLinks.map((link) => {
               const active = isActive(link.href, link.exact);
               return (

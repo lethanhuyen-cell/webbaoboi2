@@ -35,7 +35,8 @@ import {
   ExternalLink,
   RefreshCw,
   Info,
-  BookOpen
+  BookOpen,
+  ArrowLeft
 } from "lucide-react";
 
 
@@ -308,7 +309,15 @@ function AdminContent() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      
+      {/* Back Button */}
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-zinc-500 hover:text-orange-500 transition-colors mb-4 active:scale-95"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Quay lại trang chủ
+      </Link>
+
       {/* Top Banner Control */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 pb-6 mb-8">
         <div>

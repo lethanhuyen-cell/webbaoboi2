@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getStories, syncStoriesFromServer } from "@/data/store";
@@ -16,12 +17,15 @@ import {
   Users, 
   ArrowRight,
   Clock,
-  Volume2
+  Volume2,
+  Search
 } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
   const [stories, setStories] = useState<Story[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Read immediate localStorage cache first
@@ -34,6 +38,14 @@ export default function Home() {
     });
   }, []);
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/library?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/library");
+    }
+  };
 
   if (!mounted) {
     return (
@@ -92,6 +104,24 @@ export default function Home() {
               <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 Đọc, nghe và khám phá hàng chục câu chuyện giáo dục đa ngôn ngữ — được kiểm duyệt kỹ lưỡng, an toàn tuyệt đối cho trẻ.
               </p>
+
+              {/* Search Form */}
+              <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md mx-auto lg:mx-0">
+                <Search className="absolute top-3 left-4 h-4.5 w-4.5 text-orange-400 animate-pulse" />
+                <input
+                  type="text"
+                  placeholder="Tìm truyện bé yêu thích (ví dụ: Gấu, Cây...)"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-full border border-orange-100 bg-white py-3 pl-11 pr-24 text-xs sm:text-sm outline-none transition-all focus:border-orange-400 focus:ring-2 focus:ring-orange-200/50 shadow-md font-medium text-zinc-800"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-1.5 top-1.5 bottom-1.5 rounded-full bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-[10px] sm:text-xs px-4 sm:px-5 transition-all shadow-sm"
+                >
+                  Tìm kiếm
+                </button>
+              </form>
 
               {/* Metrics Bar */}
               <div className="py-2 px-3 rounded-xl bg-white/70 border border-orange-100 backdrop-blur-md inline-flex flex-wrap gap-x-3 sm:gap-x-5 gap-y-1.5 justify-center lg:justify-start items-center text-[10px] font-bold text-zinc-700 shadow-sm">

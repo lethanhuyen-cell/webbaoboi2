@@ -14,7 +14,8 @@ import {
   Clock, 
   RotateCcw,
   Tag,
-  Languages
+  Languages,
+  ArrowLeft
 } from "lucide-react";
 
 function LibraryContent() {
@@ -172,6 +173,15 @@ function LibraryContent() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-4 sm:py-8 lg:px-8">
+      {/* Back Button */}
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-zinc-500 hover:text-orange-500 transition-colors mb-3 sm:mb-5 active:scale-95"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Quay lại trang chủ
+      </Link>
+
       {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4 sm:mb-8">
         <div>
@@ -216,21 +226,26 @@ function LibraryContent() {
 
           {/* Age Group Filter */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Độ tuổi</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Độ tuổi của bé</label>
             <div className="grid grid-cols-3 gap-2">
-              {["3-8", "9-12", "12-15"].map((age) => (
-                <button
-                  key={age}
-                  onClick={() => updateURL("age", ageGroup === age ? "" : age)}
-                  className={`rounded-lg py-1.5 text-xs font-bold border transition-colors ${
-                    ageGroup === age 
-                      ? "bg-orange-500 border-orange-500 text-white" 
-                      : "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50"
-                  }`}
-                >
-                  {age}
-                </button>
-              ))}
+              {[
+                { range: "3-8", label: "🌱 3-8 t", activeClass: "bg-emerald-600 border-emerald-600 text-white shadow-sm", inactiveClass: "bg-emerald-50/50 border-emerald-100 text-emerald-800 hover:bg-emerald-100" },
+                { range: "9-12", label: "🚀 9-12 t", activeClass: "bg-orange-500 border-orange-500 text-white shadow-sm", inactiveClass: "bg-orange-50/50 border-orange-100 text-orange-850 hover:bg-orange-100" },
+                { range: "12-15", label: "✨ 12-15 t", activeClass: "bg-purple-600 border-purple-600 text-white shadow-sm", inactiveClass: "bg-purple-50/50 border-purple-100 text-purple-800 hover:bg-purple-100" },
+              ].map((ageObj) => {
+                const isActive = ageGroup === ageObj.range;
+                return (
+                  <button
+                    key={ageObj.range}
+                    onClick={() => updateURL("age", isActive ? "" : ageObj.range)}
+                    className={`rounded-xl py-2 text-xs font-bold border transition-all active:scale-95 text-center ${
+                      isActive ? ageObj.activeClass : ageObj.inactiveClass
+                    }`}
+                  >
+                    {ageObj.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
