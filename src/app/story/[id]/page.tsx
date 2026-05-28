@@ -72,18 +72,18 @@ export default function StoryDetail() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:py-8 lg:px-8">
       {/* Back Button */}
       <Link
         href="/library"
-        className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-500 hover:text-orange-500 transition-colors mb-6"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-500 hover:text-orange-500 transition-colors mb-4 sm:mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
         Quay lại thư viện
       </Link>
 
       {/* Story Core Info Box */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start mb-8 sm:mb-12">
         {/* Left: Huge Illustration */}
         <div className="lg:col-span-5 relative group overflow-hidden rounded-2xl border border-orange-100 bg-white p-3 shadow-md">
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-zinc-50">
@@ -114,28 +114,28 @@ export default function StoryDetail() {
               </span>
             </div>
             
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 leading-tight">
               {story.title}
             </h1>
             {story.titleEn && (
-              <p className="text-zinc-400 text-sm font-semibold italic -mt-1">
+              <p className="text-zinc-400 text-xs sm:text-sm font-semibold italic -mt-1 sm:-mt-1">
                 English: {story.titleEn}
               </p>
             )}
 
-            <div className="flex items-center gap-4 text-xs font-bold text-zinc-500 mt-2 bg-zinc-50 px-4 py-2 rounded-xl w-fit">
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4 text-orange-500" />
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-zinc-500 mt-1 sm:mt-2 bg-zinc-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl w-fit">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
                 <span>{story.readDuration} phút đọc</span>
               </div>
-              <span className="text-zinc-200">|</span>
-              <div className="flex items-center gap-1.5">
-                <Volume2 className="h-4 w-4 text-purple-500" />
+              <span className="text-zinc-200 hidden sm:inline">|</span>
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
                 <span>{story.audioDuration} phút nghe</span>
               </div>
-              <span className="text-zinc-200">|</span>
-              <div className="flex items-center gap-1.5">
-                <Languages className="h-4 w-4 text-emerald-500" />
+              <span className="text-zinc-200 hidden sm:inline">|</span>
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Languages className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500" />
                 <span>
                   {story.language === "vi" ? "Tiếng Việt" : story.language === "en" ? "English" : "Việt - Anh"}
                 </span>

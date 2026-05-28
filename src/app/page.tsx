@@ -60,12 +60,12 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col gap-16 pb-20">
+    <div className="flex flex-col gap-10 sm:gap-16 pb-12 sm:pb-20">
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/50 via-amber-50/30 to-transparent py-16 sm:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/50 via-amber-50/30 to-transparent py-8 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
             
             {/* Left content */}
             <div className="flex flex-col gap-6 text-center lg:text-left">
@@ -154,15 +154,15 @@ export default function Home() {
       </section>
 
       {/* Age Group Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Thiết kế chuyên biệt theo từng lứa tuổi</h2>
-          <p className="text-zinc-500 mt-3 text-sm sm:text-base">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-2 sm:mt-0">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Thiết kế chuyên biệt theo từng lứa tuổi</h2>
+          <p className="text-zinc-500 mt-2 sm:mt-3 text-sm sm:text-base">
             Mỗi giai đoạn phát triển của trẻ cần những cấu trúc câu từ, từ vựng và chủ đề giáo dục phù hợp để đạt hiệu quả cao nhất.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
           
           {/* 3-8 age card */}
           <div className="flex flex-col overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm hover:shadow-md transition-all">
@@ -224,27 +224,27 @@ export default function Home() {
       {/* Daily Gift & Continue Reading Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-gradient-to-r from-orange-400 to-amber-400 p-1">
-          <div className="rounded-2xl bg-white p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-orange-600 shrink-0 shadow-inner">
-                <Sparkles className="h-8 w-8" />
+          <div className="rounded-2xl bg-white p-4 sm:p-8 flex flex-col md:flex-row items-center gap-4 sm:gap-6 justify-between">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+              <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-orange-100 text-orange-600 shrink-0 shadow-inner">
+                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-zinc-900">Món quà hôm nay dành cho bé 🎁</h2>
-                <p className="text-sm text-zinc-500">Khám phá thế giới qua những trang truyện đầy màu sắc!</p>
+                <h2 className="text-lg sm:text-xl font-bold text-zinc-900">Món quà hôm nay dành cho bé 🎁</h2>
+                <p className="text-xs sm:text-sm text-zinc-500">Khám phá thế giới qua những trang truyện đầy màu sắc!</p>
               </div>
             </div>
             {featuredStory && (
               <Link 
                 href={`/story/${featuredStory.id}`}
-                className="w-full md:w-auto flex items-center gap-4 rounded-xl border border-orange-100 bg-orange-50/50 p-3 hover:bg-orange-100 transition-colors"
+                className="w-full md:w-auto flex items-center gap-3 sm:gap-4 rounded-xl border border-orange-100 bg-orange-50/50 p-2.5 sm:p-3 hover:bg-orange-100 transition-colors"
               >
-                <img src={featuredStory.thumbnailHorizontal} alt="" className="h-12 w-20 rounded-md object-cover shadow-sm" />
-                <div className="flex-1">
-                  <div className="text-xs font-semibold text-orange-600">Gợi ý hôm nay</div>
-                  <div className="text-sm font-bold text-zinc-900 line-clamp-1">{featuredStory.title}</div>
+                <img src={featuredStory.thumbnailHorizontal} alt="" className="h-10 w-16 sm:h-12 sm:w-20 rounded-md object-cover shadow-sm" />
+                <div className="flex-1 text-left">
+                  <div className="text-[10px] sm:text-xs font-semibold text-orange-600">Gợi ý hôm nay</div>
+                  <div className="text-xs sm:text-sm font-bold text-zinc-900 line-clamp-1">{featuredStory.title}</div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-orange-400" />
+                <ArrowRight className="h-4 w-4 text-orange-400 shrink-0" />
               </Link>
             )}
           </div>
@@ -253,15 +253,15 @@ export default function Home() {
 
       {/* Featured/New Stories Carousel */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-6">
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-orange-600 uppercase tracking-wider">
-              <Flame className="h-4 w-4 text-orange-500" />
+            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs font-semibold text-orange-600 uppercase tracking-wider">
+              <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
               Truyện mới cập nhật
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 mt-1">Truyện hay vừa lên kệ</h2>
+            <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-zinc-900 mt-0.5 sm:mt-1">Truyện hay vừa lên kệ</h2>
           </div>
-          <Link href="/library" className="text-sm font-semibold text-orange-500 hover:text-orange-600 flex items-center gap-1">
+          <Link href="/library" className="text-xs sm:text-sm font-semibold text-orange-500 hover:text-orange-600 flex items-center gap-1 whitespace-nowrap">
             Xem tất cả
             <ArrowRight className="h-3 w-3" />
           </Link>
@@ -308,20 +308,20 @@ export default function Home() {
       </section>
 
       {/* Bedtime Stories Row */}
-      <section className="bg-slate-900 text-slate-100 py-16">
+      <section className="bg-slate-900 text-slate-100 py-10 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-6 sm:mb-10">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">
-                <Moon className="h-4 w-4 text-indigo-400 fill-indigo-400" />
+              <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                <Moon className="h-3 w-3 sm:h-4 sm:w-4 text-indigo-400 fill-indigo-400" />
                 Bedtime Mode
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">Hành trình êm dịu vào giấc ngủ</h2>
-              <p className="text-slate-400 mt-2 text-sm max-w-xl">
+              <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-white mt-0.5 sm:mt-1">Hành trình êm dịu vào giấc ngủ</h2>
+              <p className="text-slate-400 mt-1.5 sm:mt-2 text-xs sm:text-sm max-w-xl">
                 Những câu chuyện có nhịp điệu chậm rãi, kết hợp âm thanh nhẹ nhàng của nhạc và giọng đọc trầm ấm giúp vỗ về bé yêu ngon giấc.
               </p>
             </div>
-            <Link href="/library?topic=Bedtime" className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 mt-4 sm:mt-0 flex items-center gap-1">
+            <Link href="/library?topic=Bedtime" className="text-xs sm:text-sm font-semibold text-indigo-400 hover:text-indigo-300 mt-3 sm:mt-0 flex items-center gap-1">
               Xem bộ truyện ngủ ngon
               <ArrowRight className="h-3 w-3" />
             </Link>

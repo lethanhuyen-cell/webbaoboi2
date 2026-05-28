@@ -171,12 +171,12 @@ function LibraryContent() {
   const uniqueEmotions = Array.from(new Set(stories.map(s => s.mainEmotion)));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:py-8 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Thư viện Bảo Bối</h1>
-          <p className="text-zinc-500 mt-1 text-sm">
+          <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-zinc-900">Thư viện Bảo Bối</h1>
+          <p className="text-zinc-500 mt-1 text-xs sm:text-sm">
             Khám phá trọn bộ 12 câu chuyện minh họa sinh động tích hợp âm thanh sống động.
           </p>
         </div>
@@ -194,10 +194,10 @@ function LibraryContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
         
         {/* Filters Sidebar */}
-        <div className="flex flex-col gap-6 rounded-2xl border border-orange-100 bg-white p-6 shadow-sm h-fit">
+        <div className="flex flex-col gap-4 sm:gap-6 rounded-2xl border border-orange-100 bg-white p-4 sm:p-6 shadow-sm h-fit">
           <div className="flex items-center justify-between border-b border-orange-50 pb-4">
             <h3 className="font-bold text-zinc-900 flex items-center gap-2">
               <Filter className="h-4 w-4 text-orange-500" />

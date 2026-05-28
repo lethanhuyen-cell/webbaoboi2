@@ -234,11 +234,11 @@ function StoryReadContent() {
       </div>
 
       {/* Main Content Area */}
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 flex-1 flex flex-col justify-center">
+      <div className="mx-auto max-w-4xl px-4 py-4 sm:py-8 sm:px-6 flex-1 flex flex-col justify-center">
         
         {!isLastPage && currentPage ? (
           /* Normal Page View */
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4 sm:gap-8">
             {/* Illustration (Hidden in Audio-Only Mode) */}
             {!audioOnlyMode && (
               <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-all duration-500 ${
