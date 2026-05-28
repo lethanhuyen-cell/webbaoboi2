@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Story {
+  id                         String   @id
+  title                      String
+  titleEn                    String?
+  seriesName                 String
+  ageGroup                   String
+  topic                      String
+  mainEmotion                String
+  skill                      String
+  description                String
+  longDescription            String
+  storyText                  String
+  wordCount                  Int
+  pageCount                  Int
+  readDuration               Int
+  audioDuration              Int
+  language                   String
+  author                     String
+  illustrator                String
+  voiceNarrator              String
+  copyrightStatus            String
+  contentWarning             String?
+  seoTitle                   String
+  seoDescription             String
+  keywords                   String   // SQLite does not support String[], we store as comma-separated or JSON string
+  thumbnailHorizontal        String
+  thumbnailVertical          String
+  squareImage                String
+  audioFile                  String
+  videoHorizontalPlaceholder String?
+  videoVerticalPlaceholder   String?
+  reviewStatus               String
+  reviewer                   String?
+  scheduledPublishDate       String?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  // Stored as JSON string in SQLite (Prisma handles Json conversion automatically)
+  pages                      String   // JSON string of StoryPage[]
+  safetyChecklist            String   // JSON string of SafetyChecklist
+  parentGuide                String   // JSON string of ParentGuide
+  socialOutputs              String   // JSON string of SocialOutputs
+}
