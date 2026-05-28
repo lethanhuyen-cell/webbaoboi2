@@ -159,7 +159,7 @@ function StoryReadContent() {
   const renderHighlightedText = (text: string) => {
     const words = text.split(" ");
     return (
-      <p className="text-lg sm:text-2xl leading-relaxed font-medium transition-all duration-300">
+      <p className="text-xl sm:text-3xl lg:text-4xl leading-loose font-medium transition-all duration-300">
         {words.map((word, idx) => {
           const isHighlighted = isPlaying && highlightWordIndex !== -1 && (idx % 15 === highlightWordIndex % 15);
           return (
@@ -328,7 +328,7 @@ function StoryReadContent() {
               {renderHighlightedText(currentPage.text)}
               
               {currentPage.textEn && (
-                <div className={`mt-6 pt-6 border-t text-sm sm:text-lg italic leading-relaxed ${
+                <div className={`mt-8 pt-8 border-t text-base sm:text-xl lg:text-2xl italic leading-loose ${
                   bedtimeMode ? "border-slate-800 text-slate-400" : "border-zinc-100 text-zinc-500"
                 }`}>
                   {currentPage.textEn}
