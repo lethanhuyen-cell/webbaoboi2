@@ -158,7 +158,7 @@ function StoryReadContent() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] w-full bg-black overflow-y-scroll"
+      className="relative h-[100dvh] w-full overflow-y-scroll bg-black"
       style={{ scrollSnapType: "y mandatory", WebkitOverflowScrolling: "touch" }}
       onClick={resetHideTimer}
     >
