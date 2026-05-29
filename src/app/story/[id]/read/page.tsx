@@ -40,98 +40,150 @@ function StoryReadContent() {
   const [highlightWordIndex, setHighlightWordIndex] = useState(-1);
   const [mounted, setMounted] = useState(false);
   const [showTapCues, setShowTapCues] = useState(true);
+  const [ttsSupported, setTtsSupported] = useState(true);
+  const [ttsVoice, setTtsVoice] = useState<SpeechSynthesisVoice | null>(null);
 
-  const audioIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const progressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const progressStartRef = useRef<number>(0);
+  const progressBaseRef = useRef<number>(0);
+
+  // Detect TTS support + load Vietnamese voice
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      setTtsSupported(false);
+      return;
+    }
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      // Prefer Vietnamese voice, fallback to any available
+      const viVoice = voices.find(v => v.lang.startsWith('vi')) ||
+                      voices.find(v => v.lang.startsWith('en')) ||
+                      voices[0] || null;
+      setTtsVoice(viVoice);
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, []);
 
   useEffect(() => {
     if (!id) return;
     const currentStory = getStoryById(id);
     if (currentStory) {
       setStory(currentStory);
-      if (currentStory.id === "story-mermaid") {
-        setScrollMode(true);
-      }
+      if (currentStory.id === "story-mermaid") setScrollMode(true);
     }
     setMounted(true);
-
-    // Sync from server DB in background
     syncStoriesFromServer().then(() => {
       const updatedStory = getStoryById(id);
       if (updatedStory) {
         setStory(updatedStory);
-        if (updatedStory.id === "story-mermaid") {
-          setScrollMode(true);
-        }
+        if (updatedStory.id === "story-mermaid") setScrollMode(true);
       }
     });
   }, [id]);
 
+  // Stop TTS when unmounting
+  useEffect(() => {
+    return () => stopSpeech();
+  }, []);
+
   useEffect(() => {
     setShowTapCues(true);
-    const timer = setTimeout(() => {
-      setShowTapCues(false);
-    }, 2500);
+    const timer = setTimeout(() => setShowTapCues(false), 2500);
     return () => clearTimeout(timer);
   }, [currentPageIndex]);
 
-  // Handle autoplay and mock audio playback
+  // Autoplay on load
   useEffect(() => {
-    if (autoplay && story && mounted) {
-      handlePlayPause(true);
-    }
-    return () => {
-      stopMockAudio();
-    };
+    if (autoplay && story && mounted) handlePlayPause(true);
   }, [story, autoplay, mounted]);
 
-  // Mock audio text highlighting effect
-  useEffect(() => {
-    if (isPlaying) {
-      let wordIdx = 0;
-      audioIntervalRef.current = setInterval(() => {
-        setAudioProgress(prev => {
-          if (prev >= 100) {
-            stopMockAudio();
-            return 100;
-          }
-          return prev + 1.5;
-        });
-
-        // Loop highlight index
-        setHighlightWordIndex(wordIdx);
-        wordIdx = (wordIdx + 1) % 15; // mock loop highlight
-      }, 500);
-    } else {
-      stopMockAudio();
+  // ---- TTS helpers ----
+  const stopSpeech = () => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
-
-    return () => stopMockAudio();
-  }, [isPlaying]);
-
-  const stopMockAudio = () => {
-    if (audioIntervalRef.current) {
-      clearInterval(audioIntervalRef.current);
-      audioIntervalRef.current = null;
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
     }
+    utteranceRef.current = null;
+  };
+
+  const getAllStoryText = (s: Story) =>
+    s.pages.filter(p => p.text).map(p => p.text).join(' ... ');
+
+  const speakText = (text: string, startProgress: number, onEnd: () => void) => {
+    stopSpeech();
+    if (!ttsSupported || !text.trim()) { onEnd(); return; }
+    const utter = new SpeechSynthesisUtterance(text);
+    if (ttsVoice) utter.voice = ttsVoice;
+    utter.lang = 'vi-VN';
+    utter.rate = 0.9;
+    utter.pitch = 1.1;
+    utteranceRef.current = utter;
+
+    const words = text.trim().split(/\s+/);
+    const totalWords = words.length;
+    let wordsDone = 0;
+
+    utter.onboundary = (e) => {
+      if (e.name === 'word') {
+        wordsDone++;
+        const pct = startProgress + ((wordsDone / Math.max(totalWords, 1)) * (100 - startProgress));
+        setAudioProgress(Math.min(pct, 99));
+        setHighlightWordIndex(wordsDone - 1);
+      }
+    };
+    utter.onend = () => {
+      setAudioProgress(100);
+      setHighlightWordIndex(-1);
+      onEnd();
+    };
+    utter.onerror = () => onEnd();
+    window.speechSynthesis.speak(utter);
   };
 
   const handlePlayPause = (playState?: boolean) => {
     const nextState = playState !== undefined ? playState : !isPlaying;
     setIsPlaying(nextState);
     if (!nextState) {
+      // Pause: suspend speech
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.pause();
+      }
       setHighlightWordIndex(-1);
+    } else {
+      // Resume or start
+      if (typeof window !== 'undefined' && window.speechSynthesis?.paused) {
+        window.speechSynthesis.resume();
+      } else if (story) {
+        // Build full text of all pages and speak
+        const fullText = getAllStoryText(story);
+        speakText(fullText, 0, () => setIsPlaying(false));
+      }
     }
   };
 
   const handlePageChange = (index: number) => {
     if (!story) return;
     if (index >= 0 && index <= story.pages.length) {
+      const wasPlaying = isPlaying;
+      stopSpeech();
+      setIsPlaying(false);
       setCurrentPageIndex(index);
       setAudioProgress(0);
       setHighlightWordIndex(-1);
-      // Keep playing mock audio on next page if it was playing
-      if (isPlaying) {
-        setIsPlaying(true);
+      // Restart speech from new page if was playing
+      if (wasPlaying && index < story.pages.length) {
+        const remainingPages = story.pages.slice(index);
+        const remainingText = remainingPages.filter(p => p.text).map(p => p.text).join(' ... ');
+        setTimeout(() => {
+          setIsPlaying(true);
+          speakText(remainingText, 0, () => setIsPlaying(false));
+        }, 300);
       }
     }
   };
@@ -295,7 +347,7 @@ function StoryReadContent() {
                   <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
                     <span className="flex items-center gap-1">
                       <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
-                      {story.voiceNarrator} · MOCK
+                      {ttsVoice ? `${story.voiceNarrator} · Giọng máy` : story.voiceNarrator}
                     </span>
                     <span>{isPlaying ? "Đang phát..." : "Nhấn ▶ để nghe"}</span>
                   </div>
@@ -443,7 +495,7 @@ function StoryReadContent() {
                       <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
                         <span className="flex items-center gap-1">
                           <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
-                          Giọng đọc: {story.voiceNarrator} (MOCK)
+                          Giọng đọc: {story.voiceNarrator} · {ttsVoice ? "Đang dùng giọng máy" : "Không hỗ trợ TTS"}
                         </span>
                         <span>{isPlaying ? "Đang phát..." : "Tạm dừng"}</span>
                       </div>
