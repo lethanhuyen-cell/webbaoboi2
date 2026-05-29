@@ -1,566 +1,327 @@
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useRef, Suspense, useCallback } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getStoryById, syncStoriesFromServer } from "@/data/store";
-import { Story, StoryPage } from "@/data/mockStories";
-import { 
-  ArrowLeft, 
-  ChevronLeft, 
-  ChevronRight, 
-  Moon, 
-  Sun, 
-  Volume2, 
-  VolumeX, 
-  Play, 
-  Pause,
-  MessageSquare,
-  Sparkles,
-  BookOpen,
-  CheckCircle2,
-  Headphones
-} from "lucide-react";
+import { Story } from "@/data/mockStories";
+import { ArrowLeft, Home, Play, Pause, CheckCircle2, MessageSquare } from "lucide-react";
 import confetti from "canvas-confetti";
+
+/* ─── Immersive Full-Screen Story Reader ───────────────────────────────────
+   Design principles:
+   • Each page = 100dvh, CSS snap scroll — one page per viewport, always
+   • Image pages: edge-to-edge, object-cover, no chrome
+   • Text pages: 20px body (Nielsen NN / Apple HIG optimal for mobile reading)
+     max ~60 chars/line, 1.75 line-height, generous vertical padding
+   • Only 3 floating controls: Back, Home, Play/Pause — auto-hide after 3s
+   • Tap anywhere to reveal controls again
+────────────────────────────────────────────────────────────────────────── */
 
 function StoryReadContent() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const id = params.id as string;
   const autoplay = searchParams.get("autoplay") === "true";
 
   const [story, setStory] = useState<Story | null>(null);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
-  const [bedtimeMode, setBedtimeMode] = useState(false);
-  const [audioOnlyMode, setAudioOnlyMode] = useState(false);
-  const [scrollMode, setScrollMode] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioProgress, setAudioProgress] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [showTapCues, setShowTapCues] = useState(true);
-  const [ttsSupported, setTtsSupported] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showControls, setShowControls] = useState(true);
   const [ttsVoice, setTtsVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [ttsSupported, setTtsSupported] = useState(true);
+  const [finished, setFinished] = useState(false);
 
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const progressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const progressStartRef = useRef<number>(0);
-  const progressBaseRef = useRef<number>(0);
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Detect TTS support + load Vietnamese voice
+  // ── Load TTS voices ──
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
       setTtsSupported(false);
       return;
     }
-    const loadVoices = () => {
+    const load = () => {
       const voices = window.speechSynthesis.getVoices();
-      // Prefer Vietnamese voice, fallback to any available
-      const viVoice = voices.find(v => v.lang.startsWith('vi')) ||
-                      voices.find(v => v.lang.startsWith('en')) ||
-                      voices[0] || null;
-      setTtsVoice(viVoice);
+      setTtsVoice(
+        voices.find((v) => v.lang.startsWith("vi")) ||
+        voices.find((v) => v.lang.startsWith("en")) ||
+        voices[0] || null
+      );
     };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    load();
+    window.speechSynthesis.onvoiceschanged = load;
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, []);
 
+  // ── Load story ──
   useEffect(() => {
     if (!id) return;
-    const currentStory = getStoryById(id);
-    if (currentStory) {
-      setStory(currentStory);
-      if (currentStory.id === "story-mermaid") setScrollMode(true);
-    }
+    const s = getStoryById(id);
+    if (s) setStory(s);
     setMounted(true);
     syncStoriesFromServer().then(() => {
-      const updatedStory = getStoryById(id);
-      if (updatedStory) {
-        setStory(updatedStory);
-        if (updatedStory.id === "story-mermaid") setScrollMode(true);
-      }
+      const updated = getStoryById(id);
+      if (updated) setStory(updated);
     });
   }, [id]);
 
-  // Stop TTS when unmounting
-  useEffect(() => {
-    return () => stopSpeech();
-  }, []);
+  // ── Stop TTS on unmount ──
+  useEffect(() => () => stopSpeech(), []);
 
-  useEffect(() => {
-    setShowTapCues(true);
-    const timer = setTimeout(() => setShowTapCues(false), 2500);
-    return () => clearTimeout(timer);
-  }, [currentPageIndex]);
-
-  // Autoplay on load
+  // ── Autoplay ──
   useEffect(() => {
     if (autoplay && story && mounted) handlePlayPause(true);
   }, [story, autoplay, mounted]);
 
-  // ---- TTS helpers ----
-  const stopSpeech = () => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+  // ── Auto-hide controls after 3s ──
+  const resetHideTimer = useCallback(() => {
+    setShowControls(true);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+  }, []);
+
+  useEffect(() => {
+    resetHideTimer();
+    return () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current); };
+  }, [resetHideTimer]);
+
+  // ── Confetti on finish (must be before early returns) ──
+  useEffect(() => {
+    if (finished) {
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 },
+        colors: ["#f97316", "#fbbf24", "#34d399", "#60a5fa"] });
     }
-    if (progressTimerRef.current) {
-      clearInterval(progressTimerRef.current);
-      progressTimerRef.current = null;
+  }, [finished]);
+
+  // ── TTS helpers ──
+  const stopSpeech = () => {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
     utteranceRef.current = null;
   };
 
-  const getAllStoryText = (s: Story) =>
-    s.pages.filter(p => p.text).map(p => p.text).join(' ... ');
+  const getAllText = (s: Story) =>
+    s.pages.filter((p) => p.text).map((p) => p.text).join("... ");
 
-  const speakText = (text: string, startProgress: number, onEnd: () => void) => {
+  const speakText = (text: string, onEnd: () => void) => {
     stopSpeech();
     if (!ttsSupported || !text.trim()) { onEnd(); return; }
     const utter = new SpeechSynthesisUtterance(text);
     if (ttsVoice) utter.voice = ttsVoice;
-    utter.lang = 'vi-VN';
-    utter.rate = 0.9;
-    utter.pitch = 1.1;
+    utter.lang = "vi-VN";
+    utter.rate = 0.88;
+    utter.pitch = 1.05;
     utteranceRef.current = utter;
-    utter.onend = () => {
-      setAudioProgress(100);
-      onEnd();
-    };
+    utter.onend = () => onEnd();
     utter.onerror = () => onEnd();
     window.speechSynthesis.speak(utter);
   };
 
   const handlePlayPause = (playState?: boolean) => {
-    const nextState = playState !== undefined ? playState : !isPlaying;
-    setIsPlaying(nextState);
-    if (!nextState) {
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
+    const next = playState !== undefined ? playState : !isPlaying;
+    setIsPlaying(next);
+    if (!next) {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.pause();
       }
     } else {
-      if (typeof window !== 'undefined' && window.speechSynthesis?.paused) {
+      if (typeof window !== "undefined" && window.speechSynthesis?.paused) {
         window.speechSynthesis.resume();
       } else if (story) {
-        const fullText = getAllStoryText(story);
-        speakText(fullText, 0, () => setIsPlaying(false));
+        speakText(getAllText(story), () => setIsPlaying(false));
       }
     }
+    resetHideTimer();
   };
 
-  const handlePageChange = (index: number) => {
-    if (!story) return;
-    if (index >= 0 && index <= story.pages.length) {
-      const wasPlaying = isPlaying;
-      stopSpeech();
-      setIsPlaying(false);
-      setCurrentPageIndex(index);
-      setAudioProgress(0);
-      setHighlightWordIndex(-1);
-      // Restart speech from new page if was playing
-      if (wasPlaying && index < story.pages.length) {
-        const remainingPages = story.pages.slice(index);
-        const remainingText = remainingPages.filter(p => p.text).map(p => p.text).join(' ... ');
-        setTimeout(() => {
-          setIsPlaying(true);
-          speakText(remainingText, 0, () => setIsPlaying(false));
-        }, 300);
-      }
-    }
-  };
-
-  // Must be BEFORE early returns — Rules of Hooks
-  const isLastPageForEffect = story ? currentPageIndex === story.pages.length : false;
-  useEffect(() => {
-    if (isLastPageForEffect) {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#f97316', '#fbbf24', '#34d399', '#60a5fa']
-      });
-    }
-  }, [isLastPageForEffect]);
-
+  // ── Render guards ──
   if (!mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-500 border-t-transparent" />
       </div>
     );
   }
 
   if (!story) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold text-zinc-800">Không tìm thấy truyện</h2>
-        <Link href="/library" className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white">
-          <ArrowLeft className="h-4 w-4" /> Quay lại thư viện
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-950 text-white">
+        <p className="text-lg font-semibold">Không tìm thấy truyện</p>
+        <Link href="/library" className="flex items-center gap-2 rounded-full bg-orange-500 px-6 py-3 font-bold text-white">
+          <ArrowLeft className="h-4 w-4" /> Về thư viện
         </Link>
       </div>
     );
   }
 
-  const isLastPage = currentPageIndex === story.pages.length;
-  const currentPage: StoryPage | undefined = story.pages[currentPageIndex];
-
-  const renderText = (text: string) => (
-    <p className="text-xl sm:text-3xl lg:text-4xl leading-loose font-medium">
-      {text}
-    </p>
-  );
-
   return (
-    <div className={`flex flex-col flex-1 transition-colors duration-500 ${
-      bedtimeMode ? "bg-slate-950 text-slate-100" : "bg-orange-50/10 text-zinc-900"
-    }`}>
-      
-      {/* Top Reading Controller Bar */}
-      <div className={`sticky top-[64px] z-40 border-b px-4 py-3 sm:px-6 lg:px-8 transition-colors ${
-        bedtimeMode ? "bg-slate-900/90 border-slate-800" : "bg-white/80 border-zinc-200/40"
-      } backdrop-blur-md`}>
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
+    <div
+      className="fixed inset-0 z-[9999] w-full bg-black overflow-y-scroll"
+      style={{ scrollSnapType: "y mandatory", WebkitOverflowScrolling: "touch" }}
+      onClick={resetHideTimer}
+    >
+      {/* ── Floating controls ─────────────────────────────── */}
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between px-4 pt-safe-top transition-opacity duration-500"
+        style={{ opacity: showControls ? 1 : 0, paddingTop: "max(env(safe-area-inset-top), 16px)" }}
+      >
+        {/* Back */}
+        <Link
+          href={`/story/${story.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md active:scale-90 transition-transform"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+
+        {/* Story title (center) */}
+        <span className="pointer-events-none max-w-[55vw] truncate rounded-full bg-black/40 px-4 py-2 text-center text-xs font-semibold text-white/90 backdrop-blur-md">
+          {story.title}
+        </span>
+
+        {/* Home */}
+        <Link
+          href="/library"
+          onClick={(e) => e.stopPropagation()}
+          className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md active:scale-90 transition-transform"
+        >
+          <Home className="h-5 w-5" />
+        </Link>
+      </div>
+
+      {/* ── Play / Pause button (bottom-center floating) ─── */}
+      <div
+        className="pointer-events-none fixed bottom-0 left-0 right-0 z-50 flex justify-center transition-opacity duration-500"
+        style={{
+          opacity: showControls ? 1 : 0,
+          paddingBottom: "max(env(safe-area-inset-bottom), 28px)",
+        }}
+      >
+        <button
+          onClick={(e) => { e.stopPropagation(); handlePlayPause(); }}
+          className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-zinc-900 shadow-2xl backdrop-blur-md active:scale-90 transition-transform"
+        >
+          {isPlaying
+            ? <Pause className="h-7 w-7 fill-zinc-900" />
+            : <Play className="h-7 w-7 fill-zinc-900 ml-0.5" />
+          }
+        </button>
+      </div>
+
+      {/* ── Story pages (snap scroll) ────────────────────── */}
+      {story.pages.map((page, index) => {
+        const isImagePage = !page.text || page.text.trim() === "";
+
+        return (
+          <section
+            key={index}
+            className="relative flex w-full flex-shrink-0"
+            style={{
+              scrollSnapAlign: "start",
+              scrollSnapStop: "always",
+              height: "100dvh",
+            }}
+          >
+            {isImagePage ? (
+              /* ── Full-screen image ── */
+              <img
+                src={page.illustrationUrl}
+                alt={`Trang ${page.pageNumber}`}
+                className="h-full w-full object-cover"
+                draggable={false}
+              />
+            ) : (
+              /* ── Full-screen text ── */
+              <div className="flex h-full w-full flex-col items-center justify-center bg-[#fafaf8] px-7 py-20 text-[#1a1a1a]">
+                {/* Small page indicator */}
+                <div className="mb-8 flex items-center gap-1.5">
+                  {story.pages.filter(p => p.text).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-1 rounded-full transition-all duration-300"
+                      style={{
+                        width: page.text === story.pages.filter(p => p.text)[i]?.text ? 24 : 6,
+                        backgroundColor: page.text === story.pages.filter(p => p.text)[i]?.text
+                          ? "#f97316" : "#d4d4d4"
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Main text — 20px, 1.75 line-height, max ~60 chars/line */}
+                <p
+                  className="w-full max-w-[340px] text-center font-medium text-[#1a1a1a]"
+                  style={{ fontSize: "20px", lineHeight: 1.75, letterSpacing: "0.01em" }}
+                >
+                  {page.text}
+                </p>
+
+                {/* English subtitle if any */}
+                {page.textEn && (
+                  <p
+                    className="mt-6 w-full max-w-[340px] text-center italic text-zinc-400"
+                    style={{ fontSize: "15px", lineHeight: 1.6 }}
+                  >
+                    {page.textEn}
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+        );
+      })}
+
+      {/* ── End / Finish screen ──────────────────────────── */}
+      <section
+        className="relative flex w-full flex-shrink-0 flex-col items-center justify-center gap-8 bg-zinc-950 px-8 py-20 text-white"
+        style={{ scrollSnapAlign: "start", scrollSnapStop: "always", height: "100dvh" }}
+        onViewportEntry={() => setFinished(true)}
+      >
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+          <CheckCircle2 className="h-10 w-10" />
+        </div>
+
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-orange-400">Đọc xong rồi! 🎉</h2>
+          <p className="mt-2 text-sm text-zinc-400">Cùng cha mẹ trò chuyện về câu chuyện nhé.</p>
+        </div>
+
+        {/* Parent guide questions */}
+        {(story.parentGuide?.discussionQuestions || []).length > 0 && (
+          <div className="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+              <MessageSquare className="h-3.5 w-3.5" /> Câu hỏi gợi mở
+            </div>
+            <ul className="space-y-3">
+              {(story.parentGuide?.discussionQuestions || []).map((q, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-500/20 text-[10px] font-bold text-orange-400">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm leading-relaxed text-zinc-300">{q}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3 w-full max-w-sm">
+          <Link
+            href="/library"
+            className="flex items-center justify-center gap-2 rounded-full bg-orange-500 py-3.5 font-bold text-white active:scale-95 transition-transform"
+          >
+            <Home className="h-4 w-4" /> Về thư viện
+          </Link>
           <Link
             href={`/story/${story.id}`}
-            className={`inline-flex items-center gap-1 text-xs sm:text-sm font-bold transition-colors ${
-              bedtimeMode ? "text-slate-400 hover:text-white" : "text-zinc-500 hover:text-orange-500"
-            }`}
+            className="flex items-center justify-center gap-2 rounded-full border border-zinc-700 py-3.5 font-semibold text-zinc-300 active:scale-95 transition-transform"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Trở về</span>
+            Xem chi tiết truyện
           </Link>
-
-          <div className="flex items-center gap-1 text-center">
-            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-              bedtimeMode ? "bg-slate-800 text-slate-400" : "bg-orange-50 text-orange-600"
-            }`}>
-              {story.title}
-            </span>
-            <span className="text-zinc-300 mx-2">/</span>
-            <span className="text-xs font-semibold">
-              {isLastPage ? "Hoàn thành" : `Trang ${currentPageIndex + 1} / ${story.pages.length}`}
-            </span>
-          </div>
-
-          {/* Viewing Modes Controls */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setScrollMode(!scrollMode)}
-              className={`rounded-full px-3 py-1.5 transition-all text-[11px] font-bold ${
-                scrollMode 
-                  ? bedtimeMode 
-                    ? "bg-slate-800 text-white" 
-                    : "bg-[#1d1d1f] text-white" 
-                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-              }`}
-              title={scrollMode ? "Đổi sang xem Lật Trang" : "Đổi sang xem Cuộn Dọc"}
-            >
-              {scrollMode ? "Chế độ cuộn ↕" : "Chế độ lật ↔"}
-            </button>
-            <div className="w-px h-5 bg-zinc-200 mx-1"></div>
-            <button
-              onClick={() => {
-                setAudioOnlyMode(!audioOnlyMode);
-                if (!audioOnlyMode) setBedtimeMode(true); // Default to bedtime when audio-only
-              }}
-              className={`rounded-full p-2 transition-all flex items-center gap-1.5 ${
-                audioOnlyMode ? "bg-purple-100 text-purple-700" : "bg-zinc-100 text-zinc-650 hover:bg-zinc-200"
-              }`}
-              title={audioOnlyMode ? "Tắt chế độ chỉ nghe" : "Bật chế độ chỉ nghe (All Ears)"}
-            >
-              <Headphones className="h-4 w-4" />
-              <span className="hidden md:inline text-xs font-semibold">Chỉ nghe</span>
-            </button>
-            <div className="w-px h-5 bg-zinc-200 mx-1"></div>
-            <button
-              onClick={() => setBedtimeMode(!bedtimeMode)}
-              className={`rounded-full p-2 transition-all ${
-                bedtimeMode ? "bg-slate-800 text-amber-300 hover:bg-slate-700" : "bg-orange-50 text-zinc-600 hover:bg-orange-100"
-              }`}
-              title={bedtimeMode ? "Tắt chế độ ngủ ngon" : "Bật chế độ ngủ ngon"}
-            >
-              {bedtimeMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-          </div>
         </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className={`mx-auto max-w-4xl px-4 sm:px-6 flex-1 flex flex-col ${scrollMode ? "py-4" : "py-4 sm:py-8 justify-center"}`}>
-        
-        {scrollMode ? (
-          /* ===== SCROLL MODE: Alternating Image / Text Pages ===== */
-          <div className="flex flex-col w-full gap-4">
-            {/* Sticky Audio Player */}
-            {story.audioFile && (
-              <div className={`sticky top-[64px] z-30 rounded-2xl p-3 sm:p-4 flex items-center gap-4 border shadow-sm transition-colors ${
-                bedtimeMode
-                  ? "bg-slate-900/95 border-slate-800 text-slate-100"
-                  : "bg-white/95 border-zinc-200/50 text-[#1d1d1f]"
-              } backdrop-blur-md`}>
-                <button
-                  onClick={() => handlePlayPause()}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white transition-transform active:scale-95 shadow-sm"
-                >
-                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-white ml-0.5" />}
-                </button>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
-                    <span className="flex items-center gap-1">
-                      <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
-                      {ttsVoice ? `${story.voiceNarrator} · Giọng máy` : story.voiceNarrator}
-                    </span>
-                    <span>{isPlaying ? "Đang phát..." : "Nhấn ▶ để nghe"}</span>
-                  </div>
-                  <div className="w-full bg-zinc-200/50 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                    <div
-                      className="bg-[#ff4500] h-1.5 rounded-full transition-all duration-300"
-                      style={{ width: `${audioProgress}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="text-xs font-mono font-bold text-zinc-400 shrink-0">
-                  {isPlaying ? `${Math.round(audioProgress)}%` : "0:00"}
-                </span>
-              </div>
-            )}
-
-            {/* Alternating image/text pages */}
-            <div className="flex flex-col gap-2 mt-2 pb-8">
-              {story.pages.map((page, index) => {
-                const isTextPage = page.text !== "";
-                return (
-                  <div key={index} className="flex flex-col items-center w-full">
-                    {!isTextPage ? (
-                      /* === Picture Page: full-width tall image === */
-                      <div className="w-full">
-                        <img
-                          src={page.illustrationUrl}
-                          alt={`Minh họa trang ${page.pageNumber}`}
-                          className={`w-full object-cover transition-all duration-500 ${
-                            bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
-                          }`}
-                          style={{ aspectRatio: "9/16", maxHeight: "95vh", objectPosition: "center" }}
-                        />
-                      </div>
-                    ) : (
-                      /* === Text Page: full-screen centered text === */
-                      <div
-                        className={`w-full flex flex-col justify-center items-center px-6 sm:px-10 py-14 sm:py-20 min-h-[90vh] text-center transition-all ${
-                          bedtimeMode
-                            ? "bg-slate-950 text-slate-100"
-                            : "bg-[#f5f5f7] text-[#1d1d1f]"
-                        }`}
-                      >
-                        {renderText(page.text)}
-                        {page.textEn && (
-                          <p className={`mt-6 text-base sm:text-lg italic leading-relaxed ${
-                            bedtimeMode ? "text-slate-400" : "text-zinc-500"
-                          }`}>
-                            {page.textEn}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              {/* End of story */}
-              <div className={`w-full flex flex-col items-center gap-6 px-6 py-14 text-center mt-4 ${
-                bedtimeMode ? "bg-slate-900 text-slate-100" : "bg-white text-[#1d1d1f]"
-              }`}>
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
-                  <CheckCircle2 className="h-10 w-10" />
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-orange-500">Bé đã đọc xong câu chuyện! 🎉</h2>
-                <p className="text-sm text-zinc-400 font-semibold">Cùng thảo luận với cha mẹ nhé.</p>
-                <div className={`w-full max-w-xl text-left rounded-2xl p-6 border ${
-                  bedtimeMode ? "bg-slate-950 border-slate-800" : "bg-purple-50/40 border-purple-100"
-                }`}>
-                  <h3 className="font-bold text-base text-purple-700 flex items-center gap-2 mb-3">
-                    <MessageSquare className="h-4 w-4" /> Câu hỏi trò chuyện cùng con
-                  </h3>
-                  <ul className="space-y-3">
-                    {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
-                      <li key={idx} className="flex gap-3 text-sm text-zinc-600">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-100 text-[10px] font-bold text-purple-700">{idx + 1}</span>
-                        <span className={bedtimeMode ? "text-slate-300" : "text-zinc-700"}>{q}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <Link
-                  href="/library"
-                  className={`rounded-full px-7 py-3 font-bold border transition-all active:scale-95 text-sm mt-2 ${
-                    bedtimeMode ? "border-slate-700 text-slate-300 hover:bg-slate-800" : "border-zinc-200 text-zinc-700 hover:bg-zinc-50 bg-white shadow-sm"
-                  }`}
-                >
-                  Về thư viện tìm truyện mới
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* ===== FLIP MODE: Normal page-by-page view ===== */
-          <>
-            {!isLastPage && currentPage ? (
-              <div className="flex flex-col gap-4 sm:gap-8">
-                {/* Illustration */}
-                {!audioOnlyMode && (
-                  <div className={`relative overflow-hidden rounded-2xl border p-2 shadow-md transition-all duration-500 ${
-                    bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
-                  }`}>
-                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-950 group">
-                      <img
-                        src={currentPage.illustrationUrl}
-                        alt={`Trang ${currentPage.pageNumber}`}
-                        className={`h-full w-full object-cover transition-all duration-700 ${
-                          bedtimeMode ? "brightness-[0.6] sepia-[0.2]" : "brightness-100"
-                        }`}
-                      />
-                      <div
-                        onClick={() => handlePageChange(currentPageIndex - 1)}
-                        className="absolute top-0 left-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-start bg-gradient-to-r from-black/15 to-transparent transition-opacity duration-300"
-                        style={{ opacity: showTapCues ? 1 : 0 }}
-                      >
-                        <div className="ml-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
-                          <ChevronLeft className="h-6 w-6" />
-                        </div>
-                      </div>
-                      <div
-                        onClick={() => handlePageChange(currentPageIndex + 1)}
-                        className="absolute top-0 right-0 w-1/3 h-full z-10 cursor-pointer flex items-center justify-end bg-gradient-to-l from-black/15 to-transparent transition-opacity duration-300"
-                        style={{ opacity: showTapCues ? 1 : 0 }}
-                      >
-                        <div className="mr-3 rounded-full bg-black/50 p-2 backdrop-blur-sm text-white scale-90 active:scale-110 transition-transform">
-                          <ChevronRight className="h-6 w-6" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Audio Player */}
-                {story.audioFile && (
-                  <div className={`rounded-2xl p-4 flex items-center gap-4 ${
-                    bedtimeMode ? "bg-slate-900 border border-slate-800" : "bg-[#f5f5f7] border border-zinc-200/50"
-                  }`}>
-                    <button
-                      onClick={() => handlePlayPause()}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] text-white transition-transform active:scale-95 shadow-sm"
-                    >
-                      {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-white ml-0.5" />}
-                    </button>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400">
-                        <span className="flex items-center gap-1">
-                          <Volume2 className="h-3.5 w-3.5 text-zinc-500" />
-                          Giọng đọc: {story.voiceNarrator} · {ttsVoice ? "Đang dùng giọng máy" : "Không hỗ trợ TTS"}
-                        </span>
-                        <span>{isPlaying ? "Đang phát..." : "Tạm dừng"}</span>
-                      </div>
-                      <div className="w-full bg-zinc-200/50 rounded-full h-1.5 mt-1 overflow-hidden">
-                        <div
-                          className="bg-[#ff4500] h-1.5 rounded-full transition-all duration-300"
-                          style={{ width: `${audioProgress}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-xs font-mono font-bold text-zinc-400">
-                      {isPlaying ? `${Math.round(audioProgress)}%` : "0:00"}
-                    </div>
-                  </div>
-                )}
-
-                {/* Story Text */}
-                <div className={`p-6 sm:p-8 rounded-3xl border ${
-                  bedtimeMode
-                    ? "bg-slate-900 border-slate-800 text-slate-200"
-                    : "bg-white border-zinc-200/50 text-[#1d1d1f] shadow-sm"
-                }`}>
-                  {renderText(currentPage.text)}
-                  {currentPage.textEn && (
-                    <div className={`mt-8 pt-8 border-t text-base sm:text-xl lg:text-2xl italic leading-loose ${
-                      bedtimeMode ? "border-slate-800 text-slate-400" : "border-zinc-100 text-zinc-500"
-                    }`}>
-                      {currentPage.textEn}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              /* Finished Page */
-              <div className={`rounded-2xl p-6 sm:p-10 border shadow-lg text-center flex flex-col items-center gap-6 ${
-                bedtimeMode ? "bg-slate-900 border-slate-800" : "bg-white border-orange-100"
-              }`}>
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
-                  <CheckCircle2 className="h-10 w-10" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-orange-500">Chúc mừng bé đã hoàn thành!</h2>
-                  <p className="text-sm text-zinc-400 font-semibold">Bạn vừa cùng con đi qua một hành trình tri thức bổ ích.</p>
-                </div>
-                <div className={`w-full text-left rounded-xl p-6 border mt-4 ${
-                  bedtimeMode ? "bg-slate-950 border-slate-800" : "bg-purple-50/30 border-purple-100"
-                }`}>
-                  <h3 className="font-bold text-lg text-purple-700 flex items-center gap-2 mb-4">
-                    <MessageSquare className="h-5 w-5 text-purple-600" />
-                    Câu hỏi trò chuyện cùng con
-                  </h3>
-                  <ul className="space-y-3">
-                    {(story.parentGuide?.discussionQuestions || []).map((q, idx) => (
-                      <li key={idx} className="flex gap-3 text-sm sm:text-base text-zinc-600">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-700 border border-purple-200">{idx + 1}</span>
-                        <span className={bedtimeMode ? "text-slate-300" : "text-zinc-700"}>{q}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 w-full mt-4 justify-center">
-                  <button onClick={() => handlePageChange(0)} className="rounded-full bg-orange-500 px-6 py-2.5 font-bold text-white shadow hover:bg-orange-600 transition-colors active:scale-95 text-sm">
-                    Đọc lại từ đầu
-                  </button>
-                  <Link href={`/story/${story.id}`} className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${bedtimeMode ? "border-slate-700 bg-slate-800 text-slate-200" : "border-orange-200 bg-orange-50/30 text-orange-700"}`}>
-                    Xem chi tiết
-                  </Link>
-                  <Link href="/library" className={`rounded-full px-6 py-2.5 font-bold border transition-all active:scale-95 text-sm ${bedtimeMode ? "border-slate-700 text-slate-300 hover:bg-slate-800" : "border-zinc-200 text-zinc-700 hover:bg-zinc-50"}`}>
-                    Về thư viện
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* Page Navigation */}
-            <div className="flex items-center justify-between mt-8">
-              <button
-                onClick={() => handlePageChange(currentPageIndex - 1)}
-                disabled={currentPageIndex === 0}
-                className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold border transition-all ${
-                  currentPageIndex === 0
-                    ? "opacity-40 cursor-not-allowed border-zinc-200 text-zinc-400"
-                    : bedtimeMode
-                      ? "bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800"
-                      : "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50 shadow-sm"
-                }`}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Trang trước
-              </button>
-              {!isLastPage && (
-                <button
-                  onClick={() => handlePageChange(currentPageIndex + 1)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#2d2d2f] px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95 shadow-sm"
-                >
-                  Trang tiếp theo
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
+      </section>
     </div>
   );
 }
@@ -568,8 +329,8 @@ function StoryReadContent() {
 export default function StoryRead() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-orange-500 border-t-transparent" />
       </div>
     }>
       <StoryReadContent />
