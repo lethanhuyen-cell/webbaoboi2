@@ -37,7 +37,6 @@ function StoryReadContent() {
   const [scrollMode, setScrollMode] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
-  const [highlightWordIndex, setHighlightWordIndex] = useState(-1);
   const [mounted, setMounted] = useState(false);
   const [showTapCues, setShowTapCues] = useState(true);
   const [ttsSupported, setTtsSupported] = useState(true);
@@ -124,22 +123,8 @@ function StoryReadContent() {
     utter.rate = 0.9;
     utter.pitch = 1.1;
     utteranceRef.current = utter;
-
-    const words = text.trim().split(/\s+/);
-    const totalWords = words.length;
-    let wordsDone = 0;
-
-    utter.onboundary = (e) => {
-      if (e.name === 'word') {
-        wordsDone++;
-        const pct = startProgress + ((wordsDone / Math.max(totalWords, 1)) * (100 - startProgress));
-        setAudioProgress(Math.min(pct, 99));
-        setHighlightWordIndex(wordsDone - 1);
-      }
-    };
     utter.onend = () => {
       setAudioProgress(100);
-      setHighlightWordIndex(-1);
       onEnd();
     };
     utter.onerror = () => onEnd();
@@ -150,17 +135,13 @@ function StoryReadContent() {
     const nextState = playState !== undefined ? playState : !isPlaying;
     setIsPlaying(nextState);
     if (!nextState) {
-      // Pause: suspend speech
       if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.pause();
       }
-      setHighlightWordIndex(-1);
     } else {
-      // Resume or start
       if (typeof window !== 'undefined' && window.speechSynthesis?.paused) {
         window.speechSynthesis.resume();
       } else if (story) {
-        // Build full text of all pages and speak
         const fullText = getAllStoryText(story);
         speakText(fullText, 0, () => setIsPlaying(false));
       }
@@ -223,31 +204,11 @@ function StoryReadContent() {
   const isLastPage = currentPageIndex === story.pages.length;
   const currentPage: StoryPage | undefined = story.pages[currentPageIndex];
 
-  // Helper to split text and render with highlighting
-  const renderHighlightedText = (text: string) => {
-    const words = text.split(" ");
-    return (
-      <p className="text-xl sm:text-3xl lg:text-4xl leading-loose font-medium transition-all duration-300">
-        {words.map((word, idx) => {
-          const isHighlighted = isPlaying && highlightWordIndex !== -1 && (idx % 15 === highlightWordIndex % 15);
-          return (
-            <span 
-              key={idx} 
-              className={`inline-block mr-1.5 transition-all duration-200 rounded px-0.5 ${
-                isHighlighted 
-                  ? bedtimeMode
-                    ? "bg-amber-400/30 text-amber-300 scale-105 shadow-sm"
-                    : "bg-orange-100 text-orange-950 scale-105 shadow-sm"
-                  : ""
-              }`}
-            >
-              {word}
-            </span>
-          );
-        })}
-      </p>
-    );
-  };
+  const renderText = (text: string) => (
+    <p className="text-xl sm:text-3xl lg:text-4xl leading-loose font-medium">
+      {text}
+    </p>
+  );
 
   return (
     <div className={`flex flex-col flex-1 transition-colors duration-500 ${
@@ -391,7 +352,7 @@ function StoryReadContent() {
                             : "bg-[#f5f5f7] text-[#1d1d1f]"
                         }`}
                       >
-                        {renderHighlightedText(page.text)}
+                        {renderText(page.text)}
                         {page.textEn && (
                           <p className={`mt-6 text-base sm:text-lg italic leading-relaxed ${
                             bedtimeMode ? "text-slate-400" : "text-zinc-500"
@@ -518,7 +479,7 @@ function StoryReadContent() {
                     ? "bg-slate-900 border-slate-800 text-slate-200"
                     : "bg-white border-zinc-200/50 text-[#1d1d1f] shadow-sm"
                 }`}>
-                  {renderHighlightedText(currentPage.text)}
+                  {renderText(currentPage.text)}
                   {currentPage.textEn && (
                     <div className={`mt-8 pt-8 border-t text-base sm:text-xl lg:text-2xl italic leading-loose ${
                       bedtimeMode ? "border-slate-800 text-slate-400" : "border-zinc-100 text-zinc-500"
